@@ -12,6 +12,11 @@ import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
 
+// transforma:
+// if (a != b) {x} else {y}
+// em
+// if (a == b) {y} else {x}
+
 public class invertingIFs {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
@@ -23,10 +28,15 @@ public class invertingIFs {
         cu.accept(new ModifierVisitor<Void>() {
             @Override
             public Visitable visit(IfStmt n, Void arg) {
+                System.out.println(n);
                 // I figured out what to get and what to cast simply by looking at the AST in the debugger! 
                 Expression condExpr = n.getCondition();
+                
+                System.out.println(condExpr);
                 if (condExpr instanceof BinaryExpr) {
                     BinaryExpr cond = (BinaryExpr) condExpr;
+                    BinaryExpr.Operator operator = cond.getOperator();
+                    System.out.println(operator);
                     if (cond.getOperator() == BinaryExpr.Operator.NOT_EQUALS && n.getElseStmt().isPresent()) {
                         /* It's a good idea to clone nodes that you move around.
                             JavaParser (or you) might get confused about who their parent is!
