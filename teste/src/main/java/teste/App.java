@@ -1,9 +1,5 @@
 package teste;
 
-/**
- * Hello world!
- *
- */
 public class App 
 {
     private static Integer a = 5;
@@ -27,5 +23,12 @@ public class App
             System.out.println( "boolean2 é false" );
         }
         System.out.println("!boolean2 é: "+!boolean2);
+    }
+    public static void method1() {
+        System.out.println("metodo 1 foi chamado");
+    }
+
+    public static Boolean method2() {
+        return true;
     }
 }
