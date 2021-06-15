@@ -3,6 +3,7 @@ package teste;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -16,6 +17,7 @@ import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
+import java.util.Optional;
 
 // transforma:
 // if (a != b) {x} else {y}
@@ -48,6 +50,11 @@ public class LogForEachMethod {
                 // System.out.println(logCallExpr);
                 ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                 System.out.println(exprStmt);
+                n.getBody().ifPresent(i -> 
+                    i.ifBlockStmt(block -> 
+                        block.getStatements().add(0, exprStmt)
+                    )
+                );
                 
                 // MethodCallExpr logCallExpr = new MethodCallExpr(System.out.println(), methodDetails);
                 // ExpressionStmt ExprStmt = new ExpressionStmt(logCallExpr);
