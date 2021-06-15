@@ -47,11 +47,11 @@ public class LogAllConditions {
                             // searchs for ternary statements
                             // on the AST: a ternary statement is a expression, that declares a variable and... 
                             // ...has a conditional expression inside its declaration
-                            expr.getExpression().ifVariableDeclarationExpr(variable -> {
-                                System.out.println(variable);
-                                variable.getVariables().forEach(v -> {
-                                    v.getInitializer().ifPresent(ternary -> ternary.ifConditionalExpr(cond -> {
-                                        System.out.println(cond.getCondition());
+                            expr.getExpression().ifVariableDeclarationExpr(declaration -> {
+                                System.out.println(declaration);
+                                declaration.getVariables().forEach(v -> {
+                                    v.getInitializer().ifPresent(variable -> variable.ifConditionalExpr(ternary -> {
+                                        System.out.println(ternary.getCondition());
                                     }));
                                 });
                             });
