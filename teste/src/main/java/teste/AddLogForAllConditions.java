@@ -1,6 +1,5 @@
 package teste;
 
-import com.github.javaparser.Position;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -17,13 +16,9 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
-import com.github.javaparser.utils.Pair;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.ArrayList;
-
 public class AddLogForAllConditions {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
@@ -44,18 +39,6 @@ public class AddLogForAllConditions {
                 // String methodDetails = "method name: " + md.getName() +", method params: " + md.getParameters();
                 // MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                 // ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                
-                // for item in list:
-                //      get position (+ index?? para corrigir o fato de que agora o numero da linha será diferente)
-                //      add expr in that position
-                
-                // md.getBody().ifPresent(i -> 
-                //     i.ifBlockStmt(block ->{ 
-                //         block.getStatements().add(0, exprStmt);
-                //         block.addStatement(index, expr);
-                //         block.getStatements().addBefore(node, beforeThisNode)
-                //     })
-                // );
 
                 md.getBody().ifPresent(i -> {
                     BlockStmt clone = i.clone();
@@ -63,7 +46,6 @@ public class AddLogForAllConditions {
                         j.ifIfStmt(ifstmt -> {
                             // if statements
                             Expression condition = ifstmt.getCondition();
-                            System.out.println(condition);
 
                             String methodDetails = "method name: " + md.getName() +", if params: " + condition;
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
@@ -76,11 +58,9 @@ public class AddLogForAllConditions {
                             // on the AST: a ternary statement is a expression, that declares a variable and... 
                             // ...has a conditional expression inside its declaration
                             expr.getExpression().ifVariableDeclarationExpr(declaration -> {
-                                System.out.println(declaration);
                                 declaration.getVariables().forEach(v -> {
                                     v.getInitializer().ifPresent(variable -> variable.ifConditionalExpr(ternary -> {
                                         Expression condition = ternary.getCondition();
-                                        System.out.println(condition);                            
 
                                         String methodDetails = "method name: " + md.getName() +", ternary params: " + condition;
                                         MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
