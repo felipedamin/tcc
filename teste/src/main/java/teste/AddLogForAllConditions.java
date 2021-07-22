@@ -62,17 +62,14 @@ public class AddLogForAllConditions {
                     i.getStatements().forEach(j -> {
                         j.ifIfStmt(ifstmt -> {
                             // if statements
-
                             Expression condition = ifstmt.getCondition();
                             System.out.println(condition);
 
-                            String methodDetails = "method name: " + md.getName() +", condition params: " + condition;
+                            String methodDetails = "method name: " + md.getName() +", if params: " + condition;
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                             clone.getStatements().addBefore(exprStmt, j);
-                            
-                            System.out.println(i);
-                            System.out.println(clone);
+
                         });
                         j.ifExpressionStmt(expr -> {
                             // searchs for ternary statements
@@ -82,7 +79,13 @@ public class AddLogForAllConditions {
                                 System.out.println(declaration);
                                 declaration.getVariables().forEach(v -> {
                                     v.getInitializer().ifPresent(variable -> variable.ifConditionalExpr(ternary -> {
-                                        System.out.println(ternary.getCondition());
+                                        Expression condition = ternary.getCondition();
+                                        System.out.println(condition);                            
+
+                                        String methodDetails = "method name: " + md.getName() +", ternary params: " + condition;
+                                        MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                                        ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                                        clone.getStatements().addBefore(exprStmt, j);
                                     }));
                                 });
                             });
