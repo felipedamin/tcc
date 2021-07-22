@@ -32,7 +32,11 @@ public class AddLogForAllConditions {
             @Override
             public Visitable visit(MethodDeclaration md, Void arg) {
                 // Navigate the AST by looking at it in the debugger!
-
+                // TODO: documentar opçoes (nao)-viaveis q encontrei - e outras similares (ex: a de loggar o return)
+                
+                // Tirar duvida sobre se devemos explicar sobre AST no TCC ou se só mostrar os resultados ja basta
+                // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST, 
+                //           e nem mostrar um trecho de cod mto grande.
                 md.getBody().ifPresent(i -> {
                     BlockStmt clone = i.clone();
                     i.getStatements().forEach(j -> {
@@ -102,6 +106,6 @@ public class AddLogForAllConditions {
         }, null);
         
         // This saves back the file we read with the changes we made. Easy!
-        // sourceRoot.saveAll();
+        sourceRoot.saveAll();
     }
 }
