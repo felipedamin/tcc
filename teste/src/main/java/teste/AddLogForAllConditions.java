@@ -1,10 +1,13 @@
 package teste;
 
+import com.github.javaparser.Position;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
@@ -14,12 +17,14 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
+import com.github.javaparser.utils.Pair;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.ArrayList;
 
-
-public class LogAllConditions {
+public class AddLogForAllConditions {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
@@ -27,22 +32,48 @@ public class LogAllConditions {
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
+        // Pair<ArrayList<ExpressionStmt>, ArrayList<Integer>> pair = GetAllConditionsAndTheirPositions.main(args);
+        // System.out.println(pair.a);
+        // System.out.println(pair.b);
+
         cu.accept(new ModifierVisitor<Void>() {
             @Override
             public Visitable visit(MethodDeclaration md, Void arg) {
-                // I figured out what to get and what to cast simply by looking at the AST in the debugger! 
+                // Navigate the AST by looking at it in the debugger!
 
-                String methodDetails = "method name: " + md.getName() +"; method params: " + md.getParameters();
-                MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
-                ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                //System.out.println(exprStmt);
+                // String methodDetails = "method name: " + md.getName() +", method params: " + md.getParameters();
+                // MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                // ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                
+                // for item in list:
+                //      get position (+ index?? para corrigir o fato de que agora o numero da linha será diferente)
+                //      add expr in that position
+                
+                // md.getBody().ifPresent(i -> 
+                //     i.ifBlockStmt(block ->{ 
+                //         block.getStatements().add(0, exprStmt);
+                //         block.addStatement(index, expr);
+                //         block.getStatements().addBefore(node, beforeThisNode)
+                //     })
+                // );
 
-                md.getBody().ifPresent(i -> 
+                md.getBody().ifPresent(i -> {
+                    BlockStmt clone = i.clone();
                     i.getStatements().forEach(j -> {
-                        j.ifIfStmt(ifstmt -> 
+                        j.ifIfStmt(ifstmt -> {
                             // if statements
-                            System.out.println(ifstmt.getCondition())
-                        );
+
+                            Expression condition = ifstmt.getCondition();
+                            System.out.println(condition);
+
+                            String methodDetails = "method name: " + md.getName() +", condition params: " + condition;
+                            MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                            ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                            clone.getStatements().addBefore(exprStmt, j);
+                            
+                            System.out.println(i);
+                            System.out.println(clone);
+                        });
                         j.ifExpressionStmt(expr -> {
                             // searchs for ternary statements
                             // on the AST: a ternary statement is a expression, that declares a variable and... 
@@ -57,11 +88,12 @@ public class LogAllConditions {
                             });
                         });
                         // TODO:
+                        // j. switch
                         // j. while
                         // j. for
-                        // j. switch
-                    })
-                );
+                    });
+                    i.replace(clone);
+                });
 
                 // if (condExpr instanceof BinaryExpr) {
                 //     BinaryExpr cond = (BinaryExpr) condExpr;
@@ -78,10 +110,11 @@ public class LogAllConditions {
                 //         cond.setOperator(BinaryExpr.Operator.EQUALS);
                 //     }
                 // }
+                
                 return super.visit(md, arg);
             }
         }, null);
-
+        
         // This saves back the file we read with the changes we made. Easy!
         sourceRoot.saveAll();
     }
