@@ -32,9 +32,20 @@ public class Methods {
         System.out.println("metodo 1 foi chamado");
     }
 
-    public static Boolean method2(boolean var) {
+    public static Boolean method2(boolean var, int switchInt) {
         if (var) {
             return !var;
+        }
+        switch (switchInt + 5) {
+            case 6:    
+                break;
+            case 7:    
+                break;
+            case 5:    
+                break;
+            
+            default:
+                break;
         }
         return var;
     }

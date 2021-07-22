@@ -13,6 +13,7 @@ import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
@@ -27,18 +28,10 @@ public class AddLogForAllConditions {
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
-        // Pair<ArrayList<ExpressionStmt>, ArrayList<Integer>> pair = GetAllConditionsAndTheirPositions.main(args);
-        // System.out.println(pair.a);
-        // System.out.println(pair.b);
-
         cu.accept(new ModifierVisitor<Void>() {
             @Override
             public Visitable visit(MethodDeclaration md, Void arg) {
                 // Navigate the AST by looking at it in the debugger!
-
-                // String methodDetails = "method name: " + md.getName() +", method params: " + md.getParameters();
-                // MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
-                // ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
 
                 md.getBody().ifPresent(i -> {
                     BlockStmt clone = i.clone();
@@ -70,8 +63,18 @@ public class AddLogForAllConditions {
                                 });
                             });
                         });
+                        j.ifSwitchStmt(expr -> {
+                            // NodeList<SwitchEntry> entries = expr.getEntries();
+                            Expression switchSelector = expr.getSelector();
+
+                            // TODO: adicionar o log nesse caso (testar)
+                            String methodDetails = "method name: " + md.getName() +", switch param: " + switchSelector;
+                            MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                            ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                            clone.getStatements().addBefore(exprStmt, j);
+                        });
                         // TODO:
-                        // j. switch
+                        // j. else
                         // j. while
                         // j. for
                     });
@@ -99,6 +102,6 @@ public class AddLogForAllConditions {
         }, null);
         
         // This saves back the file we read with the changes we made. Easy!
-        sourceRoot.saveAll();
+        // sourceRoot.saveAll();
     }
 }
