@@ -163,4 +163,23 @@ public class AddLogForAllConditions {
         // This saves back the file we read with the changes we made. Easy!
         sourceRoot.saveAll();
     }
+
+    public List<Node> extractTokensFromNode(Node node) {
+        System.out.println("extractTokensFromNode");
+        List<Node> allTokens = new ArrayList<>();
+        
+        if (node.getChildNodes().size() == 0) {
+            System.out.println("caso base");
+            System.out.println(node);
+            List<Node> nodeList = new ArrayList<>();
+            nodeList.add(node);
+            return nodeList;
+        }
+        
+        if (node.getChildNodes().size() > 0) {
+            System.out.println("chamar recursao e adicionar token à lista");
+        }
+
+        return allTokens;
+    }
 }
