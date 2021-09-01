@@ -18,9 +18,12 @@ public class Methods {
         else if (b > 10 || b == 10 || (true & a==b)) {
             System.out.println("b é maior que 10");
         }
-        
+
         if (boolean1 & true) {
             System.out.println("boolean1 é true");
+        }
+        else {
+            System.out.println("else sem if");
         }
         if (!boolean2 | boolean2) {
             System.out.println("boolean2 é false");
