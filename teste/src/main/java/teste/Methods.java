@@ -10,6 +10,16 @@ public class Methods {
 
     private static Boolean boolean2 = false;
 
+    public static void funcaoComIfElse() {
+        System.out.println("method name: funcaoComIfElse, if params: a < 1");
+        if (a < 1) {
+            System.out.println(a);
+        } else {
+            if (b > 1) {
+                System.out.println(b);
+            }
+        }
+    }
     public static void main(String[] args) {
         System.out.println("Hello World!");
         if (a < 10 && true) {
