@@ -15,6 +15,7 @@ import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 public class AddLogForAllConditions {
@@ -40,7 +41,29 @@ public class AddLogForAllConditions {
                         j.ifIfStmt(ifstmt -> {
                             // if statements
                             Expression condition = ifstmt.getCondition();
-                            List<Node> children = condition.getChildNodes();
+                            List<Node> children = new ArrayList<>();
+                            
+                            condition.getChildNodes().forEach(child -> children.add(child));
+
+                            // else statements
+                            Optional<Statement> elseStmt = ifstmt.getElseStmt();
+                            if (!elseStmt.isEmpty()) {
+                                Statement elseStmtClone = elseStmt.get().clone();
+                                
+                                elseStmt.get().ifIfStmt(elseIfStmt -> {
+                                    Expression elseIfCondition = elseIfStmt.getCondition();
+                                    
+                                    elseIfCondition.getChildNodes().forEach(child -> {
+                                        children.add(child);
+                                    });
+
+                                    String methodDetails = "method name: " + md.getName() +", if params: " + elseIfCondition;
+                                    MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                                    ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                                    clone.getStatements().addBefore(exprStmt, j);
+                                });
+                            }
+
                             children.forEach(child -> {
                                 // TODO: navegar recursivamente aqui para extrair todos os tokens
                                 // ExtractTokens.main(child);
@@ -49,13 +72,6 @@ public class AddLogForAllConditions {
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                             clone.getStatements().addBefore(exprStmt, j);
-
-                            // else statements
-                            Optional<Statement> elseStmt = ifstmt.getElseStmt();
-                            if (!elseStmt.isEmpty()) {
-                                System.out.println(elseStmt);
-                            }
-
                         });
                         j.ifExpressionStmt(expr -> {
                             // searchs for ternary statements
@@ -101,8 +117,24 @@ public class AddLogForAllConditions {
                         // j. for
                         j.ifForStmt(expr -> {
                             Optional<Expression> compare = expr.getCompare();
-                            System.out.println(compare);
+                            
+                            // pega os nomes das variaveis inicializadas
+                            expr.getInitialization().forEach(initialization -> {
+                                initialization.ifVariableDeclarationExpr(variableExpr -> {
+                                    variableExpr.getVariables().forEach(v -> {
+                                        v.getNameAsString();
+                                    });
+                                });
+                            });
+
+                            System.out.println(compare.get());
                             // TODO: extrair token do compare (usar msm função dos outros)
+                            
+                            // TODO: nao adicionar a variavel, que foi inicializada no for, no logger
+                            // MethodCallExpr testExpr = new MethodCallExpr("System.out.println");
+                            // testExpr.addArgument(compare.get().toString());
+                            // ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                            // clone.getStatements().addBefore(exprStmt, j);
                         });
                     });
                     i.replace(clone);
@@ -129,6 +161,6 @@ public class AddLogForAllConditions {
         }, null);
         
         // This saves back the file we read with the changes we made. Easy!
-        //sourceRoot.saveAll();
+        sourceRoot.saveAll();
     }
 }
