@@ -15,7 +15,7 @@ public class Methods {
         if (a < 10 && true) {
             System.out.println("a é menor que 10");
         }
-        else if (b > 10 || b == 10 || (true & a==b)) {
+        else if (b > 10 || b == 10 || a==b)) {
             System.out.println("b é maior que 10");
         }
 
