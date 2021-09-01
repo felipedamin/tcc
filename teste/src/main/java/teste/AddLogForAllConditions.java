@@ -1,25 +1,21 @@
 package teste;
 
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 public class AddLogForAllConditions {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
@@ -43,7 +39,11 @@ public class AddLogForAllConditions {
                         j.ifIfStmt(ifstmt -> {
                             // if statements
                             Expression condition = ifstmt.getCondition();
-
+                            List<Node> children = condition.getChildNodes();
+                            children.forEach(child -> {
+                                // TODO: navegar recursivamente aqui para extrair todos os tokens
+                                ExtractTokens.main(child);
+                            });
                             String methodDetails = "method name: " + md.getName() +", if params: " + condition;
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
@@ -58,7 +58,11 @@ public class AddLogForAllConditions {
                                 declaration.getVariables().forEach(v -> {
                                     v.getInitializer().ifPresent(variable -> variable.ifConditionalExpr(ternary -> {
                                         Expression condition = ternary.getCondition();
-
+                                        // tokens que serão avaliados:
+                                        condition.getChildNodes().forEach(child -> {
+                                            // TODO: depois q resolver esse problema la no ifStmt, usar a mesma soluçao aqui
+                                            System.out.println(child);
+                                        });
                                         String methodDetails = "method name: " + md.getName() +", ternary params: " + condition;
                                         MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                                         ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
@@ -71,7 +75,6 @@ public class AddLogForAllConditions {
                             // NodeList<SwitchEntry> entries = expr.getEntries();
                             Expression switchSelector = expr.getSelector();
 
-                            // TODO: adicionar o log nesse caso (testar)
                             String methodDetails = "method name: " + md.getName() +", switch param: " + switchSelector;
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
@@ -80,7 +83,22 @@ public class AddLogForAllConditions {
                         // TODO:
                         // j. else
                         // j. while
+                        j.ifWhileStmt(expr -> {
+                            Expression condition = expr.getCondition();
+                            System.out.println(condition);
+                            // TODO: extrair token (usar msm função dos outros)
+
+                            MethodCallExpr testExpr = new MethodCallExpr("System.out.println");
+                            testExpr.addArgument(condition);
+                            ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                            clone.getStatements().addBefore(exprStmt, j);
+                        });
                         // j. for
+                        j.ifForStmt(expr -> {
+                            Optional<Expression> compare = expr.getCompare();
+                            System.out.println(compare);
+                            // TODO: extrair token do compare (usar msm função dos outros)
+                        });
                     });
                     i.replace(clone);
                 });
@@ -106,6 +124,6 @@ public class AddLogForAllConditions {
         }, null);
         
         // This saves back the file we read with the changes we made. Easy!
-        sourceRoot.saveAll();
+        //sourceRoot.saveAll();
     }
 }
