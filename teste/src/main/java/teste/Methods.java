@@ -35,7 +35,7 @@ public class Methods {
     public static void method1() {
         System.out.println("metodo 1 foi chamado");
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0, j = 0; i < 3; i++) {
             System.out.println(i);
         }
         
