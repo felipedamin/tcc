@@ -15,7 +15,7 @@ public class Methods {
         if (a < 10 && true) {
             System.out.println("a é menor que 10");
         }
-        if (b > 10 || b == 10) {
+        if (b > 10 || b == 10 || (true & a==b)) {
             System.out.println("b é maior que 10");
         }
         if (boolean1 & true) {
@@ -30,6 +30,16 @@ public class Methods {
 
     public static void method1() {
         System.out.println("metodo 1 foi chamado");
+
+        for (int i = 0; i < 3; i++) {
+            System.out.println(i);
+        }
+        
+        int whileInt = 0;
+        while (whileInt <= 2) {
+            System.out.println(whileInt);
+            whileInt += 1;
+        }
     }
 
     public static Boolean method2(boolean var, int switchInt) {
