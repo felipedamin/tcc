@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
@@ -42,12 +43,18 @@ public class AddLogForAllConditions {
                             List<Node> children = condition.getChildNodes();
                             children.forEach(child -> {
                                 // TODO: navegar recursivamente aqui para extrair todos os tokens
-                                ExtractTokens.main(child);
+                                // ExtractTokens.main(child);
                             });
                             String methodDetails = "method name: " + md.getName() +", if params: " + condition;
                             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                             clone.getStatements().addBefore(exprStmt, j);
+
+                            // else statements
+                            Optional<Statement> elseStmt = ifstmt.getElseStmt();
+                            if (!elseStmt.isEmpty()) {
+                                System.out.println(elseStmt);
+                            }
 
                         });
                         j.ifExpressionStmt(expr -> {
@@ -80,8 +87,6 @@ public class AddLogForAllConditions {
                             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                             clone.getStatements().addBefore(exprStmt, j);
                         });
-                        // TODO:
-                        // j. else
                         // j. while
                         j.ifWhileStmt(expr -> {
                             Expression condition = expr.getCondition();
