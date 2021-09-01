@@ -15,11 +15,11 @@ public class Methods {
         if (a < 10 && true) {
             System.out.println("a é menor que 10");
         }
-        else if (b > 10 || b == 10 || a==b)) {
+        else if (b > 10 || b == 10) {
             System.out.println("b é maior que 10");
         }
 
-        if (boolean1 & true) {
+        if ((boolean1 & true) || (true && a==b)) {
             System.out.println("boolean1 é true");
         }
         else {
