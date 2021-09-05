@@ -14,6 +14,7 @@ public class Methods {
         System.out.println("Hello World!");
         if (a < 10 && true) {
             System.out.println("a é menor que 10");
+        }
     }
 
     public static void funcaoIfElseNested() {
