@@ -87,6 +87,21 @@ public class Methods {
     }
 
     public static Boolean funcaoSwitch(boolean var, int switchInt) {
+
+        switch(switchInt + 5) {
+            case 6:
+                break;
+            case 7:
+                break;
+            case 5:
+                break;
+            default:
+                break;
+        }
+        return var;
+    }
+
+    public static Boolean funcaoSwitchNested(boolean var, int switchInt) {
         if (var) {
             return !var;
         }
