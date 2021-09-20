@@ -90,9 +90,11 @@ public class Methods {
             return !var;
         }
         switch(switchInt + 5) {
-            case 6:
+            case 6: {
                 break;
+            }
             case 7:
+                System.out.println("is seven");
                 break;
             case 5:
                 break;
