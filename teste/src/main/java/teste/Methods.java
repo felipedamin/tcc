@@ -59,6 +59,7 @@ public class Methods {
         if ((boolean1 & true) || (true && a == b)){
             System.out.println("funcaoIfmultiplasCondicoes");
         }
+        String ternary = boolean1 ? "ternario" : "falso";
     }
     public static void funcaoTernarioNested() {
         if (!boolean2 | boolean2) {
