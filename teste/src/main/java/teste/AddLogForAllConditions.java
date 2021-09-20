@@ -40,27 +40,9 @@ public class AddLogForAllConditions {
                 // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST, 
                 //           e nem mostrar um trecho de cod mto grande.
                 md.getBody().ifPresent(i -> {
-                    BlockStmt clone = i.clone();
+                    // BlockStmt clone = i.clone();
                     String methodName = md.getNameAsString();
-                    i.getStatements().forEach(j -> {
-                        j.ifIfStmt(ifstmt -> {
-                            addLogToIfStatement(ifstmt, methodName, clone);
-                        });
-                        j.ifExpressionStmt(expr -> {
-                            // TODO: na vdd poderia primeiro ver se é ternario e só dps chamar a funcao
-                            addLogToTernaryExpr(expr, methodName, clone);
-                        });
-                        j.ifSwitchStmt(stmt -> {
-                            addLogToSwitchStatement(stmt, methodName, clone);
-                        });
-                        j.ifWhileStmt(stmt -> {
-                            addLogToWhileStatement(stmt, methodName, clone);
-                        });
-                        j.ifForStmt(stmt -> {
-                            addLogToForStatement(stmt, methodName, clone);
-                        });
-                    });
-                    i.replace(clone);
+                    visitBlock(i, methodName);
                 });
 
                 // if (condExpr instanceof BinaryExpr) {
@@ -87,14 +69,41 @@ public class AddLogForAllConditions {
         sourceRoot.saveAll();
     }
 
-    public static void visitBlock(MethodDeclaration md) {
+    public static void visitBlock(BlockStmt i, String methodName) {
+        BlockStmt clone = i.clone();
+        i.getStatements().forEach(j -> {
+            visitStmt(j, methodName, clone);
+        });
+        i.replace(clone);
+    }
+
+    public static void visitStmt(Statement j, String methodName, BlockStmt clone) {
+        System.out.println("visitStmt");
+        j.ifIfStmt(ifstmt -> {
+            addLogToIfStatement(ifstmt, methodName, clone);
+        });
+        j.ifExpressionStmt(expr -> {
+            // TODO: na vdd poderia primeiro ver se é ternario e só dps chamar a funcao
+            addLogToTernaryExpr(expr, methodName, clone);
+        });
+        j.ifSwitchStmt(stmt -> {
+            addLogToSwitchStatement(stmt, methodName, clone);
+        });
+        j.ifWhileStmt(stmt -> {
+            addLogToWhileStatement(stmt, methodName, clone);
+        });
+        j.ifForStmt(stmt -> {
+            addLogToForStatement(stmt, methodName, clone);
+        });
+        System.out.println("finished visitStmt");
     }
 
     // eles devem ser static???
     public static BlockStmt addLogToIfStatement(IfStmt stmt, String methodName, BlockStmt clone) {
+        System.out.println("addLogToIfStatement");
         Expression condition = stmt.getCondition();
         List<Node> children = new ArrayList<>();
-        
+
         condition.getChildNodes().forEach(child -> children.add(child));
 
         // else statements
@@ -102,21 +111,24 @@ public class AddLogForAllConditions {
         if (!elseStmt.isEmpty()) {
             Statement elseStmtClone = elseStmt.get().clone();
             
-            elseStmt.get().ifBlockStmt(elseBlock -> {
-                elseBlock.getStatements().forEach(nestedStmt -> {
-                    nestedStmt.ifIfStmt(nestedIfStmt -> {
-                        Expression elseIfCondition = nestedIfStmt.getCondition();
+            // elseStmt.get().ifBlockStmt(elseBlock -> {
+            //     elseBlock.getStatements().forEach(nestedStmt -> {
+            //         nestedStmt.ifIfStmt(nestedIfStmt -> {
+            //             Expression elseIfCondition = nestedIfStmt.getCondition();
                     
-                        elseIfCondition.getChildNodes().forEach(child -> {
-                            children.add(child);
-                        });
+            //             elseIfCondition.getChildNodes().forEach(child -> {
+            //                 children.add(child);
+            //             });
 
-                        String methodDetails = "method name: " + methodName +", if params: " + elseIfCondition;
-                        MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
-                        ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                        clone.getStatements().addBefore(exprStmt, stmt);
-                    });
-                });
+            //             String methodDetails = "method name: " + methodName +", if params: " + elseIfCondition;
+            //             MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+            //             ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+            //             clone.getStatements().addBefore(exprStmt, stmt);
+            //         });
+            //     });
+            // });
+            elseStmt.get().ifBlockStmt(elseBlock -> {
+                visitBlock(elseBlock, methodName);
             });
 
             elseStmt.get().ifIfStmt(elseIfStmt -> {
@@ -140,13 +152,23 @@ public class AddLogForAllConditions {
         String methodDetails = "method name: " + methodName +", if params: " + condition;
         MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
         ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+
+        System.out.println(stmt);
         clone.getStatements().addBefore(exprStmt, stmt);
         return clone;
     }
 
     public static BlockStmt addLogToSwitchStatement(SwitchStmt stmt, String methodName, BlockStmt clone) {
+        System.out.println("addLogToSwitchStatement");
         // NodeList<SwitchEntry> entries = expr.getEntries();
         Expression switchSelector = stmt.getSelector();
+
+        // stmt.getEntries().forEach(i -> {
+        //     //visitBlock(i, methodName);
+        //     i.getStatements().forEach(j -> {
+        //         visitStmt(j, methodName, clone);
+        //     });
+        // });
 
         String methodDetails = "method name: " + methodName +", switch param: " + switchSelector;
         MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
@@ -156,6 +178,7 @@ public class AddLogForAllConditions {
     }
 
     public static BlockStmt addLogToForStatement(ForStmt stmt, String methodName, BlockStmt clone) {
+        System.out.println("addLogToForStatement");
         Optional<Expression> compare = stmt.getCompare();
         // pega os nomes das variaveis inicializadas
         stmt.getInitialization().forEach(initialization -> {
@@ -178,6 +201,7 @@ public class AddLogForAllConditions {
     }
 
     public static BlockStmt addLogToWhileStatement(WhileStmt stmt, String methodName, BlockStmt clone) {
+        System.out.println("addLogToWhileStatement");
         Expression condition = stmt.getCondition();
         System.out.println(condition);
         // TODO: extrair token (usar msm função dos outros)
@@ -190,6 +214,7 @@ public class AddLogForAllConditions {
     }
 
     public static BlockStmt addLogToTernaryExpr(ExpressionStmt expr, String methodName, BlockStmt clone) {
+        System.out.println("addLogToTernaryExpr");
         // searchs for ternary statements
         // on the AST: a ternary statement is a expression, that declares a variable and... 
         // ...has a conditional expression inside its declaration
@@ -211,6 +236,7 @@ public class AddLogForAllConditions {
         });
         return clone;
     }
+    
     public List<Node> extractTokensFromNode(Node node) {
         System.out.println("extractTokensFromNode");
         List<Node> allTokens = new ArrayList<>();
