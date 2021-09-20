@@ -95,10 +95,19 @@ public class Methods {
             }
             case 7:
                 System.out.println("is seven");
+                if (true) {
+                    System.out.println("true is true");
+                }
                 break;
             case 5:
                 break;
             default:
+                if (a > 10) {
+                    System.out.println("a > 10");
+                }
+                else {
+                    System.out.println("a > 10 is not true");
+                }
                 break;
         }
         return var;
