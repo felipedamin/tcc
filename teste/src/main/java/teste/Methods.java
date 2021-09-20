@@ -29,6 +29,7 @@ public class Methods {
         }
     }
 
+    // ok
     public static void funcaoIfElseNested() {
         if (a < 1) {
             System.out.println(a);
@@ -42,6 +43,7 @@ public class Methods {
         }
     }
 
+    // ok
     public static void funcaoIfElseIf() {
         System.out.println("Hello World!");
         if (a < 10) {
@@ -55,12 +57,14 @@ public class Methods {
         }
     }
 
+    // ok
     public static void funcaoIfmultiplasCondicoes() {
         if ((boolean1 & true) || (true && a == b)){
             System.out.println("funcaoIfmultiplasCondicoes");
         }
         String ternary = boolean1 ? "ternario" : "falso";
     }
+
     public static void funcaoTernarioNested() {
         if (!boolean2 | boolean2) {
             if (boolean1) {
@@ -86,8 +90,8 @@ public class Methods {
         }
     }
 
+    // ok
     public static Boolean funcaoSwitch(boolean var, int switchInt) {
-
         switch(switchInt + 5) {
             case 6:
                 break;
