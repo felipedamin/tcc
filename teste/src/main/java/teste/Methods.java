@@ -17,6 +17,18 @@ public class Methods {
         }
     }
 
+    public static void funcaoNestedIfs() {
+        if (a < 10 && true) {
+            System.out.println("a é menor que 10");
+            if (b > 1) {
+                System.out.println(b);
+                if (b == 1) {
+                    System.out.println(b);
+                }
+            }
+        }
+    }
+
     public static void funcaoIfElseNested() {
         if (a < 1) {
             System.out.println(a);
