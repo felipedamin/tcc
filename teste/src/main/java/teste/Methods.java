@@ -65,6 +65,17 @@ public class Methods {
         String ternary = boolean1 ? "ternario" : "falso";
     }
 
+    // ok
+    public static void funcaoIfTryCatch() {
+        try {
+            if ((boolean1 & true) || (true && a == b)){
+                System.out.println("funcaoIfmultiplasCondicoes");
+            }
+        } catch (Exception e) {
+            System.err.println("exception");
+        }
+    }
+
     public static void funcaoTernarioNested() {
         if (!boolean2 | boolean2) {
             if (boolean1) {
