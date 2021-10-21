@@ -81,6 +81,9 @@ public class AddLogForAllConditions2 {
                 j.ifForStmt(stmt -> {
                     addLogToForStatement(stmt, methodName, stmt);
                 });
+                j.ifTryStmt(stmt -> {
+                    visitBlock(stmt.getTryBlock(), methodName, stmt);
+                });
                 System.out.println("finished visitStmt");
             }
         
@@ -101,6 +104,9 @@ public class AddLogForAllConditions2 {
                 });
                 j.ifForStmt(stmt -> {
                     addLogToForStatement(stmt, methodName, addBeforeThisStmt);
+                });
+                j.ifTryStmt(stmt -> {
+                    visitBlock(stmt.getTryBlock(), methodName, addBeforeThisStmt);
                 });
                 System.out.println("finished visitStmt");
             }
@@ -128,6 +134,11 @@ public class AddLogForAllConditions2 {
                         addLogToIfStatement(elseIfStmt, methodName, addBeforeThisStmt);
                     });
                 }
+
+                Statement thenStmt = stmt.getThenStmt();
+                thenStmt.ifBlockStmt( thenBlock -> {
+                    visitBlock(thenBlock, methodName, addBeforeThisStmt);
+                });
         
                 children.forEach(child -> {
                     // TODO: navegar recursivamente aqui para extrair todos os tokens
