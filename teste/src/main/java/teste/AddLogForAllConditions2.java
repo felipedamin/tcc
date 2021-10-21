@@ -1,7 +1,7 @@
 package teste;
 
 // package com.mycompany.app;
-// mvn compile exec:java -Dexec.mainClass="com.parser.AddLogForAllConditions2"
+// mvn compile exec:java -Dexec.mainClass="com.parser.AddLogForAllConditions2" -Dexec.args="src/main/java/teste"
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -32,24 +32,24 @@ import java.util.Optional;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import teste.LogFile;
+import teste.ListFilesToParse;
 
 // import java.lang.reflect;
 // import com.mycompany.app.*;
 public class AddLogForAllConditions2 {
 
-    public static void listOfFiles(File dirPath, List<String> filesToParse) {
-        File[] filesList = dirPath.listFiles();
-        for (File file : filesList) {
-            if (file.isFile()) {
-                if (file.getName().endsWith(".java")) {
-                    filesToParse.add(file.toString());
-                }
-            } else {
-                listOfFiles(file, filesToParse);
-            }
-        }
-    }
-
+    // public static void listOfFiles(File dirPath, List<String> filesToParse) {
+    // File[] filesList = dirPath.listFiles();
+    // for (File file : filesList) {
+    // if (file.isFile()) {
+    // if (file.getName().endsWith(".java")) {
+    // filesToParse.add(file.toString());
+    // }
+    // } else {
+    // listOfFiles(file, filesToParse);
+    // }
+    // }
+    // }
     // public static void logToFile(FileWriter file, String className, String methodName, Object object) throws IOException {
     // String t = object.toString();
     // System.out.println(t);
@@ -62,12 +62,13 @@ public class AddLogForAllConditions2 {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
         // Class<?> searchClass = Class.forName("com.mycompany.app.CalendarLogic");
-        Path projectRoot = Paths.get("src/main/java/teste").toAbsolutePath();
+        Path projectRoot = Paths.get(args[0]).toAbsolutePath();
         System.out.println(projectRoot);
         String projectRootString = projectRoot.toString();
         File searchDir = new File(projectRootString);
         List<String> filesToParse = new ArrayList<>();
-        listOfFiles(searchDir, filesToParse);
+        // listOfFiles(searchDir, filesToParse);
+        ListFilesToParse.listFiles(searchDir, filesToParse);
         // FileWriter myWriter = new FileWriter("target/logFile.out");
         System.out.println(filesToParse);
         for (String fileToParse : filesToParse) {
@@ -78,14 +79,14 @@ public class AddLogForAllConditions2 {
             CompilationUnit cu = sourceRoot.parse("", file);
             cu.accept(new ModifierVisitor<Void>() {
                 private BlockStmt clone;
-    
+
                 @Override
                 public Visitable visit(MethodDeclaration md, Void arg) {
                     // Navigate the AST by looking at it in the debugger!
                     // TODO: documentar opçoes (nao)-viaveis q encontrei - e outras similares (ex: a de loggar o return)
                     
                     // Tirar duvida sobre se devemos explicar sobre AST no TCC ou se só mostrar os resultados ja basta
-                    // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST, 
+                    // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST,
                     //           e nem mostrar um trecho de cod mto grande.
                     md.getBody().ifPresent(i -> {
                         String methodName = md.getNameAsString();
@@ -96,19 +97,19 @@ public class AddLogForAllConditions2 {
                     
                     return super.visit(md, arg);
                 }
-    
+
                 public void visitBlock(BlockStmt i, String methodName) {
                     i.getStatements().forEach(j -> {
                         visitStmt(j, methodName);
                     });
                 }
-    
+
                 public void visitBlock(BlockStmt i, String methodName, Statement addBeforeThisStmt) {
                     i.getStatements().forEach(j -> {
                         visitStmt(j, methodName, addBeforeThisStmt);
                     });
                 }
-    
+
                 public void visitStmt(Statement j, String methodName) {
                     System.out.println("visitStmt");
                     j.ifIfStmt(ifstmt -> {
@@ -132,7 +133,7 @@ public class AddLogForAllConditions2 {
                     });
                     System.out.println("finished visitStmt");
                 }
-            
+
                 public void visitStmt(Statement j, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("visitStmt");
                     j.ifIfStmt(ifstmt -> {
@@ -156,7 +157,7 @@ public class AddLogForAllConditions2 {
                     });
                     System.out.println("finished visitStmt");
                 }
-            
+
                 public BlockStmt addLogToIfStatement(IfStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToIfStatement");
                     System.out.println(stmt);
@@ -198,7 +199,7 @@ public class AddLogForAllConditions2 {
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-                
+
                 public BlockStmt addLogToSwitchStatement(SwitchStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToSwitchStatement");
                     // NodeList<SwitchEntry> entries = expr.getEntries();
@@ -217,7 +218,7 @@ public class AddLogForAllConditions2 {
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-            
+
                 public BlockStmt addLogToForStatement(ForStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToForStatement");
                     Optional<Expression> compare = stmt.getCompare();
@@ -240,7 +241,7 @@ public class AddLogForAllConditions2 {
                     // clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-            
+
                 public BlockStmt addLogToWhileStatement(WhileStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToWhileStatement");
                     Expression condition = stmt.getCondition();
@@ -253,11 +254,11 @@ public class AddLogForAllConditions2 {
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-            
+
                 public BlockStmt addLogToTernaryExpr(ExpressionStmt expr, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToTernaryExpr");
                     // searchs for ternary statements
-                    // on the AST: a ternary statement is a expression, that declares a variable and... 
+                    // on the AST: a ternary statement is a expression, that declares a variable and...
                     // ...has a conditional expression inside its declaration
                     expr.getExpression().ifVariableDeclarationExpr(declaration -> {
                         declaration.getVariables().forEach(v -> {
