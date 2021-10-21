@@ -1,6 +1,5 @@
 package teste;
 
-// package com.mycompany.app;
 // mvn compile exec:java -Dexec.mainClass="com.parser.AddLogForAllConditions2" -Dexec.args="src/main/java/teste"
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -34,30 +33,8 @@ import java.nio.file.Paths;
 import teste.LogFile;
 import teste.ListFilesToParse;
 
-// import java.lang.reflect;
-// import com.mycompany.app.*;
 public class AddLogForAllConditions2 {
 
-    // public static void listOfFiles(File dirPath, List<String> filesToParse) {
-    // File[] filesList = dirPath.listFiles();
-    // for (File file : filesList) {
-    // if (file.isFile()) {
-    // if (file.getName().endsWith(".java")) {
-    // filesToParse.add(file.toString());
-    // }
-    // } else {
-    // listOfFiles(file, filesToParse);
-    // }
-    // }
-    // }
-    // public static void logToFile(FileWriter file, String className, String methodName, Object object) throws IOException {
-    // String t = object.toString();
-    // System.out.println(t);
-    // // array, se for nested, se nao for, loga mais uma linha
-    // System.out.println("class#methodName#[statementType1:params1,...,statementTypeN:paramsN]");
-    // String formatted = String.format("%s#%s#%s\n", className, methodName, t);
-    // file.write(formatted);
-    // }
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
