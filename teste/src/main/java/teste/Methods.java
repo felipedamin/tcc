@@ -65,11 +65,26 @@ public class Methods {
         String ternary = boolean1 ? "ternario" : "falso";
     }
 
-    // ok
     public static void funcaoIfTryCatch() {
         try {
-            if ((boolean1 & true) || (true && a == b)){
-                System.out.println("funcaoIfmultiplasCondicoes");
+            if (a < 10) {
+                System.out.println("a é menor que 10");
+            }
+        } catch (Exception e) {
+            System.err.println("exception");
+        }
+    }
+    
+    public static void funcaoIfNestedTryCatch() {
+        try {
+            if ((boolean1 & true) || (true && a == b)) {
+                try {
+                    if (a < 10) {
+                        System.out.println("a é menor que 10");
+                    }
+                } catch (Exception e) {
+                    System.err.println("exception");
+                }
             }
         } catch (Exception e) {
             System.err.println("exception");

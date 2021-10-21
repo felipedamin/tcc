@@ -77,37 +77,38 @@ public class AddLogForAllConditions2 {
             // Our sample is in the root of this directory, so no package name.
             CompilationUnit cu = sourceRoot.parse("", file);
             cu.accept(new ModifierVisitor<Void>() {
-
                 private BlockStmt clone;
-
+    
                 @Override
                 public Visitable visit(MethodDeclaration md, Void arg) {
                     // Navigate the AST by looking at it in the debugger!
                     // TODO: documentar opçoes (nao)-viaveis q encontrei - e outras similares (ex: a de loggar o return)
+                    
                     // Tirar duvida sobre se devemos explicar sobre AST no TCC ou se só mostrar os resultados ja basta
-                    // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST,
-                    // e nem mostrar um trecho de cod mto grande.
+                    // RESPOSTA: sim, vai agregar na qualidade do trabalho. Nao precisa entrar em detalhes sobre a AST, 
+                    //           e nem mostrar um trecho de cod mto grande.
                     md.getBody().ifPresent(i -> {
                         String methodName = md.getNameAsString();
                         this.clone = i.clone();
                         visitBlock(i, methodName);
                         i.replace(clone);
                     });
+                    
                     return super.visit(md, arg);
                 }
-
+    
                 public void visitBlock(BlockStmt i, String methodName) {
                     i.getStatements().forEach(j -> {
                         visitStmt(j, methodName);
                     });
                 }
-
+    
                 public void visitBlock(BlockStmt i, String methodName, Statement addBeforeThisStmt) {
                     i.getStatements().forEach(j -> {
                         visitStmt(j, methodName, addBeforeThisStmt);
                     });
                 }
-
+    
                 public void visitStmt(Statement j, String methodName) {
                     System.out.println("visitStmt");
                     j.ifIfStmt(ifstmt -> {
@@ -126,9 +127,12 @@ public class AddLogForAllConditions2 {
                     j.ifForStmt(stmt -> {
                         addLogToForStatement(stmt, methodName, stmt);
                     });
+                    j.ifTryStmt(stmt -> {
+                        visitBlock(stmt.getTryBlock(), methodName, stmt);
+                    });
                     System.out.println("finished visitStmt");
                 }
-
+            
                 public void visitStmt(Statement j, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("visitStmt");
                     j.ifIfStmt(ifstmt -> {
@@ -147,62 +151,73 @@ public class AddLogForAllConditions2 {
                     j.ifForStmt(stmt -> {
                         addLogToForStatement(stmt, methodName, addBeforeThisStmt);
                     });
+                    j.ifTryStmt(stmt -> {
+                        visitBlock(stmt.getTryBlock(), methodName, addBeforeThisStmt);
+                    });
                     System.out.println("finished visitStmt");
                 }
-
+            
                 public BlockStmt addLogToIfStatement(IfStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToIfStatement");
                     System.out.println(stmt);
                     Expression condition = stmt.getCondition();
                     List<Node> children = new ArrayList<>();
+            
                     condition.getChildNodes().forEach(child -> children.add(child));
+            
                     // else statements
                     Optional<Statement> elseStmt = stmt.getElseStmt();
                     if (!elseStmt.isEmpty()) {
                         // Statement elseStmtClone = elseStmt.get().clone();
+    
                         elseStmt.get().ifBlockStmt(elseBlock -> {
                             visitBlock(elseBlock, methodName, addBeforeThisStmt);
                         });
+    
                         elseStmt.get().ifIfStmt(elseIfStmt -> {
                             System.out.println("é pra ter proximo elif:");
                             System.out.println(elseIfStmt);
                             addLogToIfStatement(elseIfStmt, methodName, addBeforeThisStmt);
                         });
                     }
+    
+                    Statement thenStmt = stmt.getThenStmt();
+                    thenStmt.ifBlockStmt( thenBlock -> {
+                        visitBlock(thenBlock, methodName, addBeforeThisStmt);
+                    });
+            
                     children.forEach(child -> {
                         // TODO: navegar recursivamente aqui para extrair todos os tokens
                         // ExtractTokens.main(child);
                     });
-                    String methodDetails = "method name: " + methodName + ", if params: " + condition;
+                    String methodDetails = "method name: " + methodName +", if params: " + condition;
                     MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                     ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                    System.out.println(exprStmt);
                     
+                    System.out.println(exprStmt);
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
-                    try {
-                        LogFile.write("bla", "bla", "bla");
-                    } catch (IOException e) {
-                    }
                     return clone;
                 }
-
+                
                 public BlockStmt addLogToSwitchStatement(SwitchStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToSwitchStatement");
                     // NodeList<SwitchEntry> entries = expr.getEntries();
                     Expression switchSelector = stmt.getSelector();
+            
                     // stmt.getEntries().forEach(i -> {
-                    // //visitBlock(i, methodName);
-                    // i.getStatements().forEach(j -> {
-                    // visitStmt(j, methodName, clone);
+                    //     //visitBlock(i, methodName);
+                    //     i.getStatements().forEach(j -> {
+                    //         visitStmt(j, methodName, clone);
+                    //     });
                     // });
-                    // });
-                    String methodDetails = "method name: " + methodName + ", switch param: " + switchSelector;
+            
+                    String methodDetails = "method name: " + methodName +", switch param: " + switchSelector;
                     MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                     ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-
+            
                 public BlockStmt addLogToForStatement(ForStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToForStatement");
                     Optional<Expression> compare = stmt.getCompare();
@@ -214,8 +229,10 @@ public class AddLogForAllConditions2 {
                             });
                         });
                     });
+            
                     System.out.println(compare.get());
                     // TODO: extrair token do compare (usar msm função dos outros)
+                    
                     // TODO: nao adicionar a variavel, que foi inicializada no for, no logger
                     // MethodCallExpr testExpr = new MethodCallExpr("System.out.println");
                     // testExpr.addArgument(compare.get().toString());
@@ -223,23 +240,24 @@ public class AddLogForAllConditions2 {
                     // clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-
+            
                 public BlockStmt addLogToWhileStatement(WhileStmt stmt, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToWhileStatement");
                     Expression condition = stmt.getCondition();
                     System.out.println(condition);
                     // TODO: extrair token (usar msm função dos outros)
+            
                     MethodCallExpr testExpr = new MethodCallExpr("System.out.println");
                     testExpr.addArgument(condition);
                     ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                     clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                     return clone;
                 }
-
+            
                 public BlockStmt addLogToTernaryExpr(ExpressionStmt expr, String methodName, Statement addBeforeThisStmt) {
                     System.out.println("addLogToTernaryExpr");
                     // searchs for ternary statements
-                    // on the AST: a ternary statement is a expression, that declares a variable and...
+                    // on the AST: a ternary statement is a expression, that declares a variable and... 
                     // ...has a conditional expression inside its declaration
                     expr.getExpression().ifVariableDeclarationExpr(declaration -> {
                         declaration.getVariables().forEach(v -> {
@@ -250,7 +268,7 @@ public class AddLogForAllConditions2 {
                                     // TODO: depois q resolver esse problema la no ifStmt, usar a mesma soluçao aqui
                                     System.out.println(child);
                                 });
-                                String methodDetails = "method name: " + methodName + ", ternary params: " + condition;
+                                String methodDetails = "method name: " + methodName +", ternary params: " + condition;
                                 MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                                 ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                                 clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
