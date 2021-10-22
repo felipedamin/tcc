@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import teste.LogFile;
 import teste.ListFilesToParse;
 
-public class AddLogForAllConditions2 {
+public class AddLogForAllConditionsAndClasses {
 
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
