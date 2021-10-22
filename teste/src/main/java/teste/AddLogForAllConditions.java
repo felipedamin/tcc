@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-public class AddLogForAllConditions2 {
+public class AddLogForAllConditions {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
