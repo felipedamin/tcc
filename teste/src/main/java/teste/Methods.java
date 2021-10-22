@@ -75,6 +75,23 @@ public class Methods {
         }
     }
     
+    public static void funcaoIfElseTryCatch() {
+        if (a < 10) {
+                System.out.println("a é menor que 10");
+        } else {
+            System.out.println("else");
+            
+            try {
+                System.out.println("try");
+                if (b>a) {
+                    System.out.println("b>a");
+                }
+            } catch (Exception e) {
+                System.err.println("exception");
+            }
+        }
+    }
+
     public static void funcaoIfNestedTryCatch() {
         try {
             if ((boolean1 & true) || (true && a == b)) {
