@@ -149,12 +149,13 @@ public class AddLogForAllConditionsAndClasses {
                         // Statement elseStmtClone = elseStmt.get().clone();
     
                         elseStmt.get().ifBlockStmt(elseBlock -> {
+                            // bloco de codigo dentro do else (posso nao passar nd como 3o parametro?)
                             visitBlock(elseBlock, methodName, addBeforeThisStmt);
                         });
     
                         elseStmt.get().ifIfStmt(elseIfStmt -> {
+                            // elif, nesse caso eu adiciono o log antes do if
                             System.out.println("é pra ter proximo elif:");
-                            System.out.println(elseIfStmt);
                             addLogToIfStatement(elseIfStmt, methodName, addBeforeThisStmt);
                         });
                     }
