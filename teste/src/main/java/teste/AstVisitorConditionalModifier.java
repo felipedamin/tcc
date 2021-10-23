@@ -53,7 +53,7 @@ public class AstVisitorConditionalModifier {
                 String identifier = arg[0] + "#" + arg[1]; 
                 System.out.println(identifier);
 
-                BlockStmt clone = stmt.clone().asBlockStmt();
+                IfStmt clone = stmt.clone();
                 Expression condition = stmt.getCondition();
                 String methodDetails = identifier +", if params: " + condition;
                 MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
@@ -62,8 +62,8 @@ public class AstVisitorConditionalModifier {
                 // NodeList list = new NodeList<>();
                 // list.add(exprStmt);
                 // list.add(stmt);
-                // System.out.println("stmt");
-                // System.out.println(stmt);
+                System.out.println("stmt original:");
+                System.out.println(stmt);
                 
                 // Node parentNode = null;
                 // list.setParentNode(parentNode);
@@ -72,18 +72,29 @@ public class AstVisitorConditionalModifier {
                 // stmt.replace(parentNode);
 
                 // clone.asBlockStmt().addStatement(0, exprStmt);
-                BlockStmt block = new BlockStmt();
-                block.addStatement(exprStmt);
-                block.addStatement(stmt);
-                System.out.println("block");
-                System.out.println(block);
-
-                stmt.getParentNode().get().replace(block);
+                // BlockStmt block = new BlockStmt();
+                // block.addStatement(exprStmt);
+                // block.addStatement(stmt);
+                // System.out.println("block");
+                // System.out.println(block);
+                
+                // stmt.getParentNode().get().replace(block);
                 // clone.replace(block);
                 // System.out.println("clone");
                 // System.out.println(clone);
-                super.visit(stmt, arg);
+                
+                // isso até que da meio certo, mas:
+                // - adiciona o log dentro do if
+                // - nao esta funcionando direito em ifs aninhados
+                clone.getThenStmt().asBlockStmt().addStatement(0, exprStmt);
+                
+                // System.out.println("clone");
+                // System.out.println(clone);
+                stmt.replace(clone);
+                // System.out.println("stmt alterado:");
+                // System.out.println(stmt);
 
+                super.visit(stmt, arg);
                 return stmt;
             }   
 
