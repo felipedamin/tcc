@@ -26,7 +26,7 @@ public class AddLogForAllConditions {
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
-        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(LogForEachMethod.class).resolve("src/main/java/teste"));
+        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(LogForEachMethod.class).resolve("src/test/java/teste"));
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
@@ -125,18 +125,20 @@ public class AddLogForAllConditions {
                     // Statement elseStmtClone = elseStmt.get().clone();
 
                     elseStmt.get().ifBlockStmt(elseBlock -> {
+                        // é um bloco de codigo, oq passar para o "addBeforeThisStmt"?
                         visitBlock(elseBlock, methodName, addBeforeThisStmt);
                     });
 
                     elseStmt.get().ifIfStmt(elseIfStmt -> {
+                        // é um elif, o log precisa ser antes do if
                         System.out.println("é pra ter proximo elif:");
-                        System.out.println(elseIfStmt);
                         addLogToIfStatement(elseIfStmt, methodName, addBeforeThisStmt);
                     });
                 }
 
                 Statement thenStmt = stmt.getThenStmt();
-                thenStmt.ifBlockStmt( thenBlock -> {
+                thenStmt.ifBlockStmt(thenBlock -> {
+                    // é um bloco de codigo, oq passar para o "addBeforeThisStmt"?
                     visitBlock(thenBlock, methodName, addBeforeThisStmt);
                 });
         
@@ -148,7 +150,8 @@ public class AddLogForAllConditions {
                 MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
                 ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                 
-                System.out.println(exprStmt);
+                System.out.println("addBeforeThisStmt");
+                System.out.println(addBeforeThisStmt);
                 clone.getStatements().addBefore(exprStmt, addBeforeThisStmt);
                 return clone;
             }
