@@ -91,11 +91,11 @@ public class AstVisitorConditionalModifier {
                 // System.out.println("clone");
                 // System.out.println(clone);
                 stmt.replace(clone);
-                // System.out.println("stmt alterado:");
-                // System.out.println(stmt);
+                System.out.println("stmt alterado:");
+                System.out.println(stmt);
 
-                super.visit(stmt, arg);
-                return stmt;
+                return super.visit(stmt, arg);
+                // return stmt;
             }   
 
         }, null);
