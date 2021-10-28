@@ -11,8 +11,12 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntry;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.IOException;
 
@@ -25,10 +29,32 @@ public class AstFindAllConditionalModifier {
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
-        // Process all if's:
-        cu.findAll(IfStmt.class).forEach(ifStmt -> {
-            findAndAddLog(ifStmt);
-        }); 
+        cu.accept(new ModifierVisitor<String[]>() {
+            String[] names = {"", ""}; 
+            @Override
+            public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
+                String className = classDeclaration.getNameAsString();
+                this.names[0] = className;
+
+                // "we make a call to super to ensure child nodes of the current node are also visited"
+                // entao se essa classe herdar de uma que tem um visit() alterado, pode funcionar nos childnodes
+                return super.visit(classDeclaration, this.names);
+            }
+            
+            @Override
+            public Visitable visit(MethodDeclaration md, String[] arg) {
+                String methodName = md.getNameAsString();
+                this.names[1] = methodName;
+                
+                // Process all if's:
+                md.findAll(IfStmt.class).forEach(ifStmt -> {
+                    findAndAddLog(ifStmt);
+                });
+                
+                //TODO: precisa desse return
+                return super.visit(md, this.names);
+            }
+        }, null); 
         // This saves back the file we read with the changes we made. Easy!
         sourceRoot.saveAll();
     }
