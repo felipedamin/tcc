@@ -1,0 +1,24 @@
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+class#methodName#if#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true
+
+df: class#methodName#if#a<10 && b!=a
+    id| a      |  b      | condition
+    1|a.value()|b.value()|condition.value()|
+    2|a.value()|b.value()|condition.value()|
+    3|a.value()|b.value()|condition.value()|
+    4|a.value()|b.value()|condition.value()|
+    5|a.value()|b.value()|condition.value()|
+    6|a.value()|b.value()|condition.value()|
+    7|a.value()|b.value()|condition.value()|
+    8|a.value()|b.value()|condition.value()|

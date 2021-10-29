@@ -1,10 +1,13 @@
 package teste;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -19,6 +22,8 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
@@ -29,15 +34,16 @@ public class AstFindAllConditionalModifier {
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
+        cu.addImport(new ImportDeclaration("teste.LogFile", false, true));
+
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""}; 
+            
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
                 String className = classDeclaration.getNameAsString();
                 this.names[0] = className;
-
-                // "we make a call to super to ensure child nodes of the current node are also visited"
-                // entao se essa classe herdar de uma que tem um visit() alterado, pode funcionar nos childnodes
+                
                 return super.visit(classDeclaration, this.names);
             }
             
@@ -45,13 +51,12 @@ public class AstFindAllConditionalModifier {
             public Visitable visit(MethodDeclaration md, String[] arg) {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
-                
+
                 // Process all if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
-                    findAndAddLog(ifStmt);
+                    findAndAddLog(ifStmt, this.names);
                 });
-                
-                //TODO: precisa desse return
+                // "we make a call to super to ensure child nodes of the current node are also visited"
                 return super.visit(md, this.names);
             }
         }, null); 
@@ -76,17 +81,12 @@ public class AstFindAllConditionalModifier {
         return statements;
     }
 
-    public static void findAndAddLog(IfStmt ifStmt) {
+    public static void findAndAddLog(IfStmt ifStmt, String[] names) {
         Expression condition = ifStmt.getCondition();
-            // adicionei essa condiçao para tentar evitar o erro dos "else if"... nao deu certo (acho q da pra remover...)
-            // if (!ifStmt.hasCascadingIfStmt()) {
-                // We have to manipulate the list the if is in, so let's figure it out:
                 ifStmt.getParentNode()
                         // Se o código java é válido, sempre vai existir esse parent
                         .map(parent -> {
                             addBeforeThisStmt = ifStmt;
-                            System.out.println(parent.getClass().getName());
-                            // System.out.println(parent);
                             NodeList<Statement> statements = new NodeList<>();
                             if (parent.getClass() == IfStmt.class) {
                                 statements = findTopLevelIf(parent);
@@ -98,20 +98,31 @@ public class AstFindAllConditionalModifier {
                             if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.BlockStmt") {
                                 statements = ((BlockStmt) parent).getStatements();
                             }
+
                             return statements;
                         })
-                        // pelo que entendi a prox linha esta chamando getStatements() para cada item do .map()
-                        //.map(BlockStmt::getStatements)
-                        // removi pois estou fazendo isso no .map() anterior
                         .ifPresent(statements -> {
                             if (statements.size() > 0) {
-                                String methodDetails = "TODO:nomeDaClasse#nomeDoMetodo" +", if params: " + condition;
-                                MethodCallExpr testExpr = new MethodCallExpr("System.out.println", new StringLiteralExpr(methodDetails));
+                                String classAndMethodName = names[0] + "#" + names[1] + "#";
+                                String conditionType = "ifStmt";
+                                List<NameExpr> conditionParams = new ArrayList<NameExpr>();
+                                // TODO: remover duplicatas do conditionParams
+                                if (condition.isBinaryExpr()) {
+                                    conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+                                } else {
+                                    conditionParams.add(condition.asNameExpr());
+                                }
+                                ArrayList<Object> paramValue;
+                                // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
+                                MethodCallExpr testExpr = new MethodCallExpr(
+                                    "LogFile.write",
+                                    new StringLiteralExpr(classAndMethodName),
+                                    new StringLiteralExpr(conditionType),
+                                    new StringLiteralExpr(condition.toString()),
+                                    new StringLiteralExpr(conditionParams.toString())
+                                );
+                                // testExpr.addArgument(condition);
                                 ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                                // System.out.println("statements: ");
-                                // System.out.println(statements);
-                                // System.out.println("ifStmt: ");
-                                // System.out.println(ifStmt);
                                 statements.addBefore(exprStmt, addBeforeThisStmt); 
                             }
     
@@ -120,11 +131,6 @@ public class AstFindAllConditionalModifier {
                             //         // Use addBefore to get them in the right order (try addAfter to see why)
                             //         // Clone the statement we're copying to avoid touching the existing AST.
                             //         statements.addBefore(thenStmt.clone(), ifStmt));
-    
-                            // Remove the if statement. (Try removing this line.)
-                            // ifStmt.remove();
                         });
-                // }
-            
     }
 }

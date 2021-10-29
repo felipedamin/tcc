@@ -12,13 +12,13 @@ public class Methods {
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
-        if (a < 10 && true) {
+        if (a < 10) {
             System.out.println("a é menor que 10");
         }
     }
 
     public static void funcaoNestedIfs() {
-        if (a < 10 && true) {
+        if (a < 10) {
             System.out.println("a é menor que 10");
             if (b > 1) {
                 System.out.println(b);
@@ -59,7 +59,7 @@ public class Methods {
 
     // ok
     public static void funcaoIfmultiplasCondicoes() {
-        if ((boolean1 & true) || (true && a == b)){
+        if ((boolean1) || (a == b)){
             System.out.println("funcaoIfmultiplasCondicoes");
         }
         String ternary = boolean1 ? "ternario" : "falso";
@@ -94,7 +94,7 @@ public class Methods {
 
     public static void funcaoIfNestedTryCatch() {
         try {
-            if ((boolean1 & true) || (true && a == b)) {
+            if ((boolean1) || (a == b)) {
                 try {
                     if (a < 10) {
                         System.out.println("a é menor que 10");
@@ -158,8 +158,8 @@ public class Methods {
             }
             case 7:
                 System.out.println("is seven");
-                if (true) {
-                    System.out.println("true is true");
+                if (var) {
+                    System.out.println("var is true");
                 }
                 break;
             case 5:
