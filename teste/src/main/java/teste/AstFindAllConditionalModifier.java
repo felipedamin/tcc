@@ -51,10 +51,12 @@ public class AstFindAllConditionalModifier {
             public Visitable visit(MethodDeclaration md, String[] arg) {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
-                md.addThrownException(IOException.class);
 
                 // Process all if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
+                    if (!md.isThrown(IOException.class)) {
+                        md.addThrownException(IOException.class);
+                    }
                     findAndAddLog(ifStmt, this.names);
                 });
                 // "we make a call to super to ensure child nodes of the current node are also visited"
@@ -84,58 +86,58 @@ public class AstFindAllConditionalModifier {
 
     public static void findAndAddLog(IfStmt ifStmt, String[] names) {
         Expression condition = ifStmt.getCondition();
-                ifStmt.getParentNode()
-                        // Se o código java é válido, sempre vai existir esse parent
-                        .map(parent -> {
-                            addBeforeThisStmt = ifStmt;
-                            NodeList<Statement> statements = new NodeList<>();
-                            if (parent.getClass() == IfStmt.class) {
-                                statements = findTopLevelIf(parent);
-                            }
-                            if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.SwitchEntry") {
-                                SwitchEntry parentAsSwitchEntry = ((SwitchEntry) parent);
-                                statements = parentAsSwitchEntry.getStatements();
-                            }
-                            if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.BlockStmt") {
-                                statements = ((BlockStmt) parent).getStatements();
-                            }
+        ifStmt.getParentNode()
+            // Se o código java é válido, sempre vai existir esse parent
+            .map(parent -> {
+                addBeforeThisStmt = ifStmt;
+                NodeList<Statement> statements = new NodeList<>();
+                if (parent.getClass() == IfStmt.class) {
+                    statements = findTopLevelIf(parent);
+                }
+                if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.SwitchEntry") {
+                    SwitchEntry parentAsSwitchEntry = ((SwitchEntry) parent);
+                    statements = parentAsSwitchEntry.getStatements();
+                }
+                if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.BlockStmt") {
+                    statements = ((BlockStmt) parent).getStatements();
+                }
 
-                            return statements;
-                        })
-                        .ifPresent(statements -> {
-                            if (statements.size() > 0) {
-                                String classAndMethodName = names[0] + "#" + names[1] + "#";
-                                String conditionType = "ifStmt";
-                                List<NameExpr> conditionParams = new ArrayList<NameExpr>();
-                                
-                                // ArrayList<Object> paramValue;
-                                // TODO: remover duplicatas do conditionParams e terminar paramValue
-                                if (condition.isBinaryExpr()) {
-                                    conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
-                                    // paramValue = condition.asBinaryExpr().findAll(NameExpr.class);
-                                } else {
-                                    conditionParams.add(condition.asNameExpr());
-                                    // paramValue.add(condition.asNameExpr());
-                                }
-                                // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
-                                MethodCallExpr testExpr = new MethodCallExpr(
-                                    "LogFile.write",
-                                    new StringLiteralExpr(classAndMethodName),
-                                    new StringLiteralExpr(conditionType),
-                                    new StringLiteralExpr(condition.toString())
-                                    // new StringLiteralExpr(conditionParams.toString())
-                                    );
-                                // testExpr.addArgument(paramValue); // Object[] paramValue
-                                testExpr.addArgument(condition); // boolean finalValue
-                                ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                                statements.addBefore(exprStmt, addBeforeThisStmt); 
-                            }
-    
-                            // Copy the statements in the then-block next to the if statement.
-                            // thenBlock.getStatements().forEach(thenStmt ->
-                            //         // Use addBefore to get them in the right order (try addAfter to see why)
-                            //         // Clone the statement we're copying to avoid touching the existing AST.
-                            //         statements.addBefore(thenStmt.clone(), ifStmt));
-                        });
+                return statements;
+            })
+            .ifPresent(statements -> {
+                if (statements.size() > 0) {
+                    String classAndMethodName = names[0] + "#" + names[1] + "#";
+                    String conditionType = "ifStmt";
+                    List<NameExpr> conditionParams = new ArrayList<NameExpr>();
+                    
+                    // ArrayList<Object> paramValue;
+                    // TODO: remover duplicatas do conditionParams e terminar paramValue
+                    if (condition.isBinaryExpr()) {
+                        conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+                        // paramValue = condition.asBinaryExpr().findAll(NameExpr.class);
+                    } else {
+                        conditionParams.add(condition.asNameExpr());
+                        // paramValue.add(condition.asNameExpr());
+                    }
+                    // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
+                    MethodCallExpr testExpr = new MethodCallExpr(
+                        "LogFile.write",
+                        new StringLiteralExpr(classAndMethodName),
+                        new StringLiteralExpr(conditionType),
+                        new StringLiteralExpr(condition.toString())
+                        // new StringLiteralExpr(conditionParams.toString())
+                        );
+                    // testExpr.addArgument(paramValue); // Object[] paramValue
+                    testExpr.addArgument(condition); // boolean finalValue
+                    ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+                    statements.addBefore(exprStmt, addBeforeThisStmt); 
+                }
+
+                // Copy the statements in the then-block next to the if statement.
+                // thenBlock.getStatements().forEach(thenStmt ->
+                //         // Use addBefore to get them in the right order (try addAfter to see why)
+                //         // Clone the statement we're copying to avoid touching the existing AST.
+                //         statements.addBefore(thenStmt.clone(), ifStmt));
+            });
     }
 }

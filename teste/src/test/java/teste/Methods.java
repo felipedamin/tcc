@@ -29,6 +29,10 @@ public class Methods {
         }
     }
 
+    public static Integer getA() {
+        return a;
+    }
+
     // ok
     public static void funcaoIfElseNested() {
         if (a < 1) {
