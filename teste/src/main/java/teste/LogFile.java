@@ -18,7 +18,23 @@ public class LogFile {
         try {
             file.write(formatted);
         } catch (IOException e) {
+            System.err.println(e);
         }
+        file.close();
+    }
+
+    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue) throws IOException {
+        // "class#methodName#a<10 && b!=a#true
+        FileWriter file = new FileWriter("logFile.out", true);
+        // array, se for nested, se nao for, loga mais uma linha
+        System.out.println("class#methodName#[statementType1:params1,...,statementTypeN:paramsN]");
+        String formatted = String.format("%s#%s#%s\n", classAndMethodName);
+        try {
+            file.write(formatted);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+
         file.close();
     }
 }

@@ -51,6 +51,7 @@ public class AstFindAllConditionalModifier {
             public Visitable visit(MethodDeclaration md, String[] arg) {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
+                md.addThrownException(IOException.class);
 
                 // Process all if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
@@ -106,22 +107,26 @@ public class AstFindAllConditionalModifier {
                                 String classAndMethodName = names[0] + "#" + names[1] + "#";
                                 String conditionType = "ifStmt";
                                 List<NameExpr> conditionParams = new ArrayList<NameExpr>();
-                                // TODO: remover duplicatas do conditionParams
+                                
+                                // ArrayList<Object> paramValue;
+                                // TODO: remover duplicatas do conditionParams e terminar paramValue
                                 if (condition.isBinaryExpr()) {
                                     conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+                                    // paramValue = condition.asBinaryExpr().findAll(NameExpr.class);
                                 } else {
                                     conditionParams.add(condition.asNameExpr());
+                                    // paramValue.add(condition.asNameExpr());
                                 }
-                                ArrayList<Object> paramValue;
                                 // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
                                 MethodCallExpr testExpr = new MethodCallExpr(
                                     "LogFile.write",
                                     new StringLiteralExpr(classAndMethodName),
                                     new StringLiteralExpr(conditionType),
-                                    new StringLiteralExpr(condition.toString()),
-                                    new StringLiteralExpr(conditionParams.toString())
-                                );
-                                // testExpr.addArgument(condition);
+                                    new StringLiteralExpr(condition.toString())
+                                    // new StringLiteralExpr(conditionParams.toString())
+                                    );
+                                // testExpr.addArgument(paramValue); // Object[] paramValue
+                                testExpr.addArgument(condition); // boolean finalValue
                                 ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                                 statements.addBefore(exprStmt, addBeforeThisStmt); 
                             }
