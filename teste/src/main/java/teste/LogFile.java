@@ -1,4 +1,4 @@
-package teste;
+package br.usp.larc.nanoib.teste;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,8 +27,8 @@ public class LogFile {
         // "class#methodName#a<10 && b!=a#true
         FileWriter file = new FileWriter("logFile.out", true);
         // array, se for nested, se nao for, loga mais uma linha
-        System.out.println("class#methodName#[statementType1:params1,...,statementTypeN:paramsN]");
-        String formatted = String.format("%s#%s#%s\n", classAndMethodName);
+        System.out.println(conditionType);
+        String formatted = String.format("%s#%s#%s#%b\n", classAndMethodName, conditionType, condition, finalValue);
         try {
             file.write(formatted);
         } catch (IOException e) {
