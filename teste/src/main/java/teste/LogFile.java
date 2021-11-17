@@ -1,4 +1,4 @@
-package br.usp.larc.nanoib.teste;
+package teste;
 
 import java.io.FileWriter;
 import java.io.IOException;

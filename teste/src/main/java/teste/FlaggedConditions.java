@@ -13,8 +13,9 @@ public class FlaggedConditions {
     }
 
     public static Map<String, ArrayList<String>> getConditions() throws FileNotFoundException {
-        Map<String, ArrayList<String>> outerMap = new HashMap();
-        File file = new File("/Users/victorkim/Documents/POLI/TCC/tcc/logFile.out");
+        Map<String, ArrayList<String>> outerMap = new HashMap<String, ArrayList<String>>();
+        // File file = new File("/Users/victorkim/Documents/POLI/TCC/tcc/logFile.out");
+        File file = new File("C:\\Users\\felip\\Programs\\mycodes\\tcc\\tcc\\logFile.out");
         Scanner sc = new Scanner(file);
         // int counter = 0;
         while (sc.hasNextLine()) {
