@@ -24,18 +24,22 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
-        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(LogForEachMethod.class).resolve("src/test/java/teste"));
+        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
+        // TODO: o import eh diferente dependendo do package
         cu.addImport(new ImportDeclaration("teste.LogFile", false, true));
 
+        Map<String, ArrayList<String>> flaggedConditions = FlaggedConditions.getConditions();
+        
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""}; 
             
@@ -106,7 +110,7 @@ public class AstFindAllConditionalModifier {
             })
             .ifPresent(statements -> {
                 if (statements.size() > 0) {
-                    String classAndMethodName = names[0] + "#" + names[1] + "#";
+                    String classAndMethodName = names[0] + "#" + names[1];
                     String conditionType = "ifStmt";
                     List<NameExpr> conditionParams = new ArrayList<NameExpr>();
                     

@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.FileNotFoundException;
 
-public class InstrumentFinalCode {
+public class FlaggedConditions {
     public static void main(String[] args) throws FileNotFoundException {
-        System.out.println(instrument());
+        System.out.println(getConditions());
     }
 
-    public static Map instrument() throws FileNotFoundException {
+    public static Map<String, ArrayList<String>> getConditions() throws FileNotFoundException {
         Map<String, ArrayList<String>> outerMap = new HashMap();
         File file = new File("/Users/victorkim/Documents/POLI/TCC/tcc/logFile.out");
         Scanner sc = new Scanner(file);
@@ -38,6 +36,7 @@ public class InstrumentFinalCode {
                 }
             }
         }
+        sc.close();
         return outerMap;
     }
 }
