@@ -49,15 +49,10 @@ df = df.groupby(columns_2)["count"].count().reset_index()
 
 df_clean = heuristic_zero_executions(df)
 
+file_name = "/Users/victorkim/Documents/df_clean.out"
 
-
-
-
-
-
-# file_name = "/Users/victorkim/Documents/df.csv"
-
-# df.to_csv(file_name, sep='\t', encoding='utf-8', index=False)
+df_clean = df_clean['class#method#condition']
+df_clean.to_csv(file_name, sep=' ', encoding='utf-8', index=False, header=False)
 
 # print(df)
 
