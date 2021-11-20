@@ -25,6 +25,8 @@ public class FlaggedConditions {
             String className = split[0];
             String methodName = split[1];
             String condition = split[2];
+            // remove white spaces (just in case)
+            condition = condition.replaceAll("\\s", "");
             if (!outerMap.containsKey(className + "#" + methodName)) {
                 ArrayList<String> conditions = new ArrayList<String>();
                 conditions.add(condition);

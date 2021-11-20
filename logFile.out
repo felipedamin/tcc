@@ -1,5 +1,5 @@
-class#methodName#a<10 && b!=a#true
-class#methodName#a<10 && b!=a#true
-class#methodName#a<10 && b!=a#false
-class#methodName#a<10#false
-class#methodName#a<10#false
+Methods#main#a<10 && b!=a#true
+Methods#main#a<10 && b!=a#true
+Methods#main#a<10 && b!=a#false
+Methods#main#a<10#false
+Methods#main#a<10#false
