@@ -38,7 +38,7 @@ public class AstFindAllConditionalModifier {
         CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
         // TODO: o import eh diferente dependendo do package
-        cu.addImport(new ImportDeclaration("teste.LogFile", false, true));
+        cu.addImport(new ImportDeclaration("teste.LogFile", false, false));
 
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
