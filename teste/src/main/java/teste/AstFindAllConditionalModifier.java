@@ -134,6 +134,16 @@ public class AstFindAllConditionalModifier {
                     String conditionType = "ifStmt";
                     List<NameExpr> conditionParams = new ArrayList<NameExpr>();
                     
+                    // ??ifstmt.childNodes?
+                    // BinaryExpr conditionLeftToken = condition.asBinaryExpr();
+                    // BinaryExpr conditionRightToken = condition.asBinaryExpr();
+                    // while (conditionLeftToken.asBinaryExpr().getLeft().isBinaryExpr()) {
+                    //     conditionLeftToken = (BinaryExpr) conditionLeftToken.asBinaryExpr().getLeft();
+                    // }
+                    // while (conditionRightToken.asBinaryExpr().getRight().isBinaryExpr()) {
+                    //     conditionRightToken = (BinaryExpr) conditionRightToken.asBinaryExpr().getRight();
+                    // }
+                    
                     // ArrayList<Object> paramValue;
                     // TODO: remover duplicatas do conditionParams e terminar paramValue
                     if (condition.isBinaryExpr()) {
@@ -143,16 +153,58 @@ public class AstFindAllConditionalModifier {
                         conditionParams.add(condition.asNameExpr());
                         // paramValue.add(condition.asNameExpr());
                     }
+
+                    // OUTRA FORMA
+                    // add a statement to the method body
+                    // NameExpr clazz = new NameExpr("System");
+                    // FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
+                    // MethodCallExpr call = new MethodCallExpr(field, "println");
+                    // call.addArgument(new StringLiteralExpr("Hello World!"));
+                    // block.addStatement(call);
+
+                    // OUTRA FORMA 2
+                    // new MethodCallExpr()
+                    //  .setScope(new NameExpr(Float.class.getName()))
+                    //  .setName("parseFloat")
+                    //  .addArgument(new StringLiteralExpr(value));
+
                     // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
                     MethodCallExpr testExpr = new MethodCallExpr(
                         "LogFile.write",
                         new StringLiteralExpr(classAndMethodName),
                         new StringLiteralExpr(conditionType),
                         new StringLiteralExpr(condition.toString())
-                        // new StringLiteralExpr(conditionParams.toString())
+                        //new StringLiteralExpr(conditionParams.toString())  // ex: "[a, b]"
                         );
                     // testExpr.addArgument(paramValue); // Object[] paramValue
                     testExpr.addArgument(condition); // boolean finalValue
+                    
+                    // condition.childNodes
+                    ArrayList<String> tokenAsString = new ArrayList<String>();
+                    ArrayList<Expression> tokens = new ArrayList<Expression>();
+                    condition.getChildNodes().forEach(e -> {
+                        if (e.getClass() == BinaryExpr.class){
+                            Expression eAsExpression = ((Expression) e);
+                            tokens.add(eAsExpression);
+                            tokenAsString.add(e.toString());
+                        }
+                    });
+                    
+                    if (tokenAsString.size() > 0) {
+                        System.out.println(tokenAsString);
+                        System.out.println(tokenAsString.toString());
+                        testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));
+                    }
+
+                    Expression[] tokensAsArray = new Expression[tokens.size()];
+                    for (int i =0; i<tokens.size(); i++) {
+                        tokensAsArray[i] = tokens.get(i);
+                        testExpr.addArgument(new MethodCallExpr(
+                            "String.valueOf",
+                            tokensAsArray[i]
+                        ));
+                    }
+
                     ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                     statements.addBefore(exprStmt, addBeforeThisStmt); 
                 }

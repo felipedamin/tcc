@@ -12,13 +12,13 @@ public class Methods {
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
-        if (a < 10) {
+        if (a < 10 || b < 5) {
             System.out.println("a é menor que 10");
         }
     }
 
     public static void funcaoNestedIfs() {
-        if (a < 10) {
+        if (a < 10 && b == 5) {
             System.out.println("a é menor que 10");
             if (b > 1) {
                 System.out.println(b);
@@ -63,7 +63,7 @@ public class Methods {
 
     // ok
     public static void funcaoIfmultiplasCondicoes() {
-        if ((boolean1) || (a == b)){
+        if (boolean1 || a == b){
             System.out.println("funcaoIfmultiplasCondicoes");
         }
         String ternary = boolean1 ? "ternario" : "falso";
@@ -80,7 +80,7 @@ public class Methods {
     }
     
     public static void funcaoIfElseTryCatch() {
-        if (a < 10) {
+        if (a < 10 || b==5) {
                 System.out.println("a é menor que 10");
         } else {
             System.out.println("else");
@@ -98,7 +98,7 @@ public class Methods {
 
     public static void funcaoIfNestedTryCatch() {
         try {
-            if ((boolean1) || (a == b)) {
+            if (boolean1 || a == b) {
                 try {
                     if (a < 10) {
                         System.out.println("a é menor que 10");

@@ -24,6 +24,20 @@ public class LogFile {
         file.close();
     }
 
+    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue, String allTokens, String ...tokenValues) throws IOException {
+        // "class#methodName#a<10 && b!=a#true
+        FileWriter file = new FileWriter("logFile.out", true);
+
+        String formatted = String.format("%s#%s#%s#%b#%s#%s\n", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
+        try {
+            file.write(formatted);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+
+        file.close();
+    }
+
     public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue) throws IOException {
         // "class#methodName#a<10 && b!=a#true
         // TODO: mudar "teste" para "xisnove"
