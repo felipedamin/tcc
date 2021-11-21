@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FlaggedConditions {
     public static void main(String[] args) throws FileNotFoundException {
@@ -15,7 +17,11 @@ public class FlaggedConditions {
     public static Map<String, ArrayList<String>> getConditions() throws FileNotFoundException {
         Map<String, ArrayList<String>> outerMap = new HashMap<String, ArrayList<String>>();
         // File file = new File("/Users/victorkim/Documents/POLI/TCC/tcc/logFile.out");
-        File file = new File("C:\\Users\\felip\\Programs\\mycodes\\tcc\\tcc\\logFile.out");
+        // TODO: mudar "teste" para "xisnove"
+        Path frequencyAnalysisFile = Paths.get("src/main/java/teste/frequency_analyser/conditions_of_interest.out").toAbsolutePath();
+        // File file = new File("C:\\Users\\felip\\Programs\\mycodes\\tcc\\tcc\\logFile.out");
+        // ClassLoader classLoader = FlaggedConditions.class.getClassLoader();
+        File file = new File(frequencyAnalysisFile.normalize().toString());
         Scanner sc = new Scanner(file);
         // int counter = 0;
         while (sc.hasNextLine()) {
@@ -25,14 +31,11 @@ public class FlaggedConditions {
             String className = split[0];
             String methodName = split[1];
             String condition = split[2];
-            // remove white spaces (just in case)
-            condition = condition.replaceAll("\\s", "");
             if (!outerMap.containsKey(className + "#" + methodName)) {
                 ArrayList<String> conditions = new ArrayList<String>();
                 conditions.add(condition);
                 outerMap.put(className + "#" + methodName, conditions);
-            }
-            else {
+            } else {
                 ArrayList<String> conditions = outerMap.get(className + "#" + methodName);
                 if (!conditions.contains(condition)) {
                     conditions.add(condition);
