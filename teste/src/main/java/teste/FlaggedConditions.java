@@ -30,13 +30,14 @@ public class FlaggedConditions {
             // Array map = new HashMap();
             String className = split[0];
             String methodName = split[1];
-            String condition = split[2];
-            if (!outerMap.containsKey(className + "#" + methodName)) {
+            String statementType = split[2];
+            String condition = split[3];
+            if (!outerMap.containsKey(className + "#" + methodName + '#' + statementType)) {
                 ArrayList<String> conditions = new ArrayList<String>();
                 conditions.add(condition);
-                outerMap.put(className + "#" + methodName, conditions);
+                outerMap.put(className + "#" + methodName + '#' + statementType, conditions);
             } else {
-                ArrayList<String> conditions = outerMap.get(className + "#" + methodName);
+                ArrayList<String> conditions = outerMap.get(className + "#" + methodName + '#' + statementType);
                 if (!conditions.contains(condition)) {
                     conditions.add(condition);
                 }
