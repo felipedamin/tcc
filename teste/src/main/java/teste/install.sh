@@ -2,9 +2,9 @@
 #
 
 # install python and pandas
-apt install python3 -y
-apt install python3-pip -y
-pip3 install pandas
+sudo apt install python3 -y
+sudo apt install python3-pip -y
+sudo pip3 install pandas
 
 # get to root directory and install javaparser and jqf-fuzzer
 cd ..  
