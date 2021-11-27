@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import teste.LogFile;
+import teste.logFile.LogFile;
 import teste.ListFilesToParse;
 
 public class AddLogForAllConditionsAndClasses {

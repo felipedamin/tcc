@@ -42,7 +42,7 @@ public class AstFindAllConditionalModifier {
 
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
-            Boolean productionCode = false;
+            Boolean productionCode = true;
             
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
@@ -71,7 +71,7 @@ public class AstFindAllConditionalModifier {
 
                     Expression condition = ifStmt.getCondition();
                     String conditionString = condition.toString();
-                    String conditionId = this.names[0] + "#" + this.names[1];
+                    String conditionId = this.names[0] + "#" + this.names[1] + "#ifStmt";
                     conditionString = conditionString.replaceAll("\\s", "");
                     Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) && flaggedConditions.get(conditionId).contains(conditionString);
                     
