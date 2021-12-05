@@ -27,7 +27,7 @@ cd ..
 cd ..
 
 # find all conditions and mark all branches
-mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true" #DESIRED_CLASS add args with full path of desired directory
+mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile false" #DESIRED_CLASS add args with full path of desired directory
 
 # run fuzzer to generate logFile.out
 mvn jqf:fuzz -Dclass=$fuzzClass -Dmethod=$fuzzMethod -Dtime=1m
