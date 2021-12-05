@@ -23,26 +23,39 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
     public static void main(String[] args) throws IOException {
         // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
         // In this case the root directory is found by taking the root from the current Maven module,
-        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
+        // SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
         // Our sample is in the root of this directory, so no package name.
-        CompilationUnit cu = sourceRoot.parse("", "Methods.java");
+        // CompilationUnit cu = sourceRoot.parse("", "Methods.java");
+
+        // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
+        // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
+        Path projectRoot = Paths.get(args[0]).toAbsolutePath();
+        // System.out.println(projectRoot);
+        String projectRootString = projectRoot.normalize().toString();
+        File parseFile = new File(projectRootString);
+        // System.out.println(parseFile.getParent());
+        SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
+        CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
 
         // TODO: o import eh diferente dependendo do package
         cu.addImport(new ImportDeclaration("teste.logFile.LogFile", false, false));
 
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
-            Boolean productionCode = true;
+            Boolean productionCode = Boolean.parseBoolean(args[1]);
             
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {

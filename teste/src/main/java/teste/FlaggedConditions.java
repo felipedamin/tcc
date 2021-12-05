@@ -18,8 +18,8 @@ public class FlaggedConditions {
         Map<String, ArrayList<String>> outerMap = new HashMap<String, ArrayList<String>>();
         // File file = new File("/Users/victorkim/Documents/POLI/TCC/tcc/logFile.out");
         // TODO: mudar "teste" para "xisnove"
-        // Path frequencyAnalysisFile = Paths.get("src/main/java/teste/frequency_analyser/conditions_of_interest.out").toAbsolutePath();
-        Path frequencyAnalysisFile = Paths.get("tcc/teste/src/main/java/teste/frequency_analyser/conditions_of_interest.out").toAbsolutePath();
+        Path frequencyAnalysisFile = Paths.get("src/main/java/teste/frequency_analyser/conditions_of_interest.out").toAbsolutePath();
+        // Path frequencyAnalysisFile = Paths.get("tcc/teste/src/main/java/teste/frequency_analyser/conditions_of_interest.out").toAbsolutePath();
 
         // File file = new File("C:\\Users\\felip\\Programs\\mycodes\\tcc\\tcc\\logFile.out");
         // ClassLoader classLoader = FlaggedConditions.class.getClassLoader();
