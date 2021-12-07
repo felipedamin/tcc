@@ -26,7 +26,8 @@ public class LogFile {
 
     public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue, String allTokens, String ...tokenValues) throws IOException {
         // "class#methodName#a<10 && b!=a#true
-        FileWriter file = new FileWriter("logFile.out", true);
+        Path projectRoot = Paths.get("src/main/java/teste/logFile").toAbsolutePath();
+        FileWriter file = new FileWriter(projectRoot.normalize().toString() + "/logFile.out", true);
 
         String formatted = String.format("%s#%s#%s#%b#%s#%s\n", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
         try {
