@@ -52,7 +52,6 @@ public class AstFindAllConditionalModifier {
         SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
         CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
 
-        // TODO: o import eh diferente dependendo do package
         cu.addImport(new ImportDeclaration("teste.logFile.LogFile", false, false));
 
         cu.accept(new ModifierVisitor<String[]>() {
@@ -73,14 +72,13 @@ public class AstFindAllConditionalModifier {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
 
-                // Process all if's:
+                // Processa todos os if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
                     Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
                     if (productionCode) {
                         try {
                             flaggedConditions = FlaggedConditions.getConditions();
                         } catch (FileNotFoundException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
@@ -98,11 +96,11 @@ public class AstFindAllConditionalModifier {
                         findAndAddLog(ifStmt, this.names);
                     }
                 });
-                // "we make a call to super to ensure child nodes of the current node are also visited"
+                // Chama-se o super.visit() para garantir que todos os nós serão visitados
                 return super.visit(md, this.names);
             }
         }, null); 
-        // This saves back the file we read with the changes we made. Easy!
+        // Salva todas as alterações
         sourceRoot.saveAll();
     }
 
@@ -161,13 +159,11 @@ public class AstFindAllConditionalModifier {
                     // }
                     
                     // ArrayList<Object> paramValue;
-                    // TODO: remover duplicatas do conditionParams e terminar paramValue
+                    // TODO: remover duplicatas do conditionParams
                     if (condition.isBinaryExpr()) {
                         conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
-                        // paramValue = condition.asBinaryExpr().findAll(NameExpr.class);
                     } else {
                         conditionParams.add(condition.asNameExpr());
-                        // paramValue.add(condition.asNameExpr());
                     }
 
                     // OUTRA FORMA
@@ -184,15 +180,12 @@ public class AstFindAllConditionalModifier {
                     //  .setName("parseFloat")
                     //  .addArgument(new StringLiteralExpr(value));
 
-                    // String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue
                     MethodCallExpr testExpr = new MethodCallExpr(
                         "LogFile.write",
                         new StringLiteralExpr(classAndMethodName),
                         new StringLiteralExpr(conditionType),
                         new StringLiteralExpr(condition.toString())
-                        //new StringLiteralExpr(conditionParams.toString())  // ex: "[a, b]"
                         );
-                    // testExpr.addArgument(paramValue); // Object[] paramValue
                     testExpr.addArgument(condition); // boolean finalValue
                     
                     // condition.childNodes
