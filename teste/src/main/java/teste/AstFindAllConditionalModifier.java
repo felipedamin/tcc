@@ -95,7 +95,7 @@ public class AstFindAllConditionalModifier {
                         if (!md.isThrown(IOException.class)) {
                             md.addThrownException(IOException.class);
                         }
-                        findAndAddLog(ifStmt, this.names, productionCode);
+                        findAndAddLog(ifStmt, this.names);
                     }
                 });
                 // "we make a call to super to ensure child nodes of the current node are also visited"
@@ -123,7 +123,7 @@ public class AstFindAllConditionalModifier {
         return statements;
     }
 
-    public static void findAndAddLog(IfStmt ifStmt, String[] names, Boolean productionCode) {
+    public static void findAndAddLog(IfStmt ifStmt, String[] names) {
         Expression condition = ifStmt.getCondition();
     
         ifStmt.getParentNode()
@@ -234,12 +234,6 @@ public class AstFindAllConditionalModifier {
                     ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
                     statements.addBefore(exprStmt, addBeforeThisStmt); 
                 }
-
-                // Copy the statements in the then-block next to the if statement.
-                // thenBlock.getStatements().forEach(thenStmt ->
-                //         // Use addBefore to get them in the right order (try addAfter to see why)
-                //         // Clone the statement we're copying to avoid touching the existing AST.
-                //         statements.addBefore(thenStmt.clone(), ifStmt));
             });
     }
 }
