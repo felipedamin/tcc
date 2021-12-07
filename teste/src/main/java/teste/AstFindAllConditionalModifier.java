@@ -5,10 +5,12 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
@@ -34,10 +36,10 @@ import java.nio.file.Paths;
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
     public static void main(String[] args) throws IOException {
-        // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
-        // In this case the root directory is found by taking the root from the current Maven module,
+        // // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
+        // // In this case the root directory is found by taking the root from the current Maven module,
         // SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
-        // Our sample is in the root of this directory, so no package name.
+        // // Our sample is in the root of this directory, so no package name.
         // CompilationUnit cu = sourceRoot.parse("", "Methods.java");
 
         // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
@@ -56,6 +58,7 @@ public class AstFindAllConditionalModifier {
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
             Boolean productionCode = Boolean.parseBoolean(args[1]);
+            // Boolean productionCode = false;
             
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
@@ -197,6 +200,16 @@ public class AstFindAllConditionalModifier {
                     ArrayList<Expression> tokens = new ArrayList<Expression>();
                     condition.getChildNodes().forEach(e -> {
                         if (e.getClass() == BinaryExpr.class){
+                            Expression eAsExpression = ((Expression) e);
+                            tokens.add(eAsExpression);
+                            tokenAsString.add(e.toString());
+                        }
+                        else if (e.getClass() == UnaryExpr.class){
+                            Expression eAsExpression = ((Expression) e);
+                            tokens.add(eAsExpression);
+                            tokenAsString.add(e.toString());
+                        }
+                        else if (e.getClass() == NameExpr.class){
                             Expression eAsExpression = ((Expression) e);
                             tokens.add(eAsExpression);
                             tokenAsString.add(e.toString());

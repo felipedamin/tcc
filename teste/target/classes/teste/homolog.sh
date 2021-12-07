@@ -1,5 +1,19 @@
 #!/bin/bash
 # homolog
+if [ $# -lt 3 ]; then
+    echo "not enough arguments"
+    echo "usage: sh homolog.sh -p <path to file to parse starting from src> -c <full qualified name of class to fuzz> -m <method name to fuzz>"
+    exit 1;
+fi
+
+while getopts p:c:m: flag
+do
+    case "${flag}" in
+        p) parseFile=${OPTARG};;
+        c) fuzzClass=${OPTARG};;
+        m) fuzzMethod=${OPTARG};;
+    esac
+done
 
 # create logFile.out file
 cd logFile
@@ -13,10 +27,10 @@ cd ..
 cd ..
 
 # find all conditions and mark all branches
-mvn compile exec:java -Dexec.mainClass=xisnove.AstFindAllConditionalModifier #-Dexec.args=DESIRED_CLASS add args with full path of desired directory
+mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile false" #DESIRED_CLASS add args with full path of desired directory
 
 # run fuzzer to generate logFile.out
-mvn jqf:fuzz -Dclass=br.usp.larc.nanoib.handlers.LoginFuzzing -Dmethod=fuzz -Dtime=1m
+mvn jqf:fuzz -Dclass=$fuzzClass -Dmethod=$fuzzMethod -Dtime=1m
 
 # run frequency_analyser and generate conditions_of_interest.py
-python3 src/main/java/xisnove/frequency_analyser/frequency_analyser.py
+python3 src/main/java/teste/frequency_analyser/frequency_analyser.py
