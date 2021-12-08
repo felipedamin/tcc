@@ -26,6 +26,10 @@ cd ..
 cd ..
 cd ..
 
+# save copy of parsed file
+mkdir src/main/java/teste/parseBackup
+cp $parseFile src/main/java/teste/parseBackup/parsedJavaFile.backup
+
 # find all conditions and mark all branches
 mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile false" #DESIRED_CLASS add args with full path of desired directory
 

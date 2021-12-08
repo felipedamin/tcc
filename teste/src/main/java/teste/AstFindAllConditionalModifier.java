@@ -18,13 +18,16 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
+import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +55,14 @@ public class AstFindAllConditionalModifier {
         SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
         CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
 
+        DotPrinter printer = new DotPrinter(true);
+        try (FileWriter fileWriter = new FileWriter("astBefore.dot")) {
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.print(printer.output(cu));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+            
         cu.addImport(new ImportDeclaration("teste.logFile.LogFile", false, false));
 
         cu.accept(new ModifierVisitor<String[]>() {
@@ -100,8 +111,17 @@ public class AstFindAllConditionalModifier {
                 return super.visit(md, this.names);
             }
         }, null); 
+
         // Salva todas as alterações
         sourceRoot.saveAll();
+
+        // Salva a nova arvore
+        try (FileWriter fileWriter = new FileWriter("astAfter.dot")) {
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.print(printer.output(cu));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static NodeList<Statement> findTopLevelIf(Node parent) {
@@ -210,8 +230,8 @@ public class AstFindAllConditionalModifier {
                     });
                     
                     if (tokenAsString.size() > 0) {
-                        System.out.println(tokenAsString);
-                        System.out.println(tokenAsString.toString());
+                        // System.out.println(tokenAsString);
+                        // System.out.println(tokenAsString.toString());
                         testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));
                     }
 

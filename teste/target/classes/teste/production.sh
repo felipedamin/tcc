@@ -19,5 +19,8 @@ cd ..
 cd ..
 cd ..
 
+# copy original file back for final instrumentation
+cp src/main/java/teste/parseBackup/parsedJavaFile.backup $parseFile
+
 # find all conditions and mark all branches
 mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
