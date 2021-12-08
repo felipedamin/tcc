@@ -9,3 +9,11 @@ Requisitos:
 comandos:
 mvn compile exec:java -Dexec.mainClass="teste.AddLogForAllConditionsAndClasses" -Dexec.args="src/test/java/teste"
 mvn test -Dtest=br.usp.larc.nanoib.handlers.BalanceFunctionalTest
+
+
+Copiar para outra pasta:
+- astFindAll
+- flaggedConditions
+- logFile/
+- frequency_analyser/
+- *.sh

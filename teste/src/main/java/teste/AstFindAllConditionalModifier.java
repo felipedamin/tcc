@@ -39,25 +39,26 @@ import java.nio.file.Paths;
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
     public static void main(String[] args) throws IOException {
-        // // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
-        // // In this case the root directory is found by taking the root from the current Maven module,
-        // SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
-        // // Our sample is in the root of this directory, so no package name.
-        // CompilationUnit cu = sourceRoot.parse("", "Methods.java");
+        // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
+        // In this case the root directory is found by taking the root from the current Maven module,
+        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
+        // Our sample is in the root of this directory, so no package name.
+        CompilationUnit cu = sourceRoot.parse("", "MethodsExample.java");
 
-        // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
-        // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
-        Path projectRoot = Paths.get(args[0]).toAbsolutePath();
-        // System.out.println(projectRoot);
-        String projectRootString = projectRoot.normalize().toString();
-        File parseFile = new File(projectRootString);
-        // System.out.println(parseFile.getParent());
-        SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
-        CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
+        // // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
+        // // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
+        // Path projectRoot = Paths.get(args[0]).toAbsolutePath();
+        // // System.out.println(projectRoot);
+        // String projectRootString = projectRoot.normalize().toString();
+        // File parseFile = new File(projectRootString);
+        // // System.out.println(parseFile.getParent());
+        // SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
+        // CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
 
         DotPrinter printer = new DotPrinter(true);
         try (FileWriter fileWriter = new FileWriter("astBefore.dot")) {
             PrintWriter printWriter = new PrintWriter(fileWriter);
+            // System.out.println(printer.output(cu));
             printWriter.print(printer.output(cu));
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,8 +68,8 @@ public class AstFindAllConditionalModifier {
 
         cu.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
-            Boolean productionCode = Boolean.parseBoolean(args[1]);
-            // Boolean productionCode = false;
+            // Boolean productionCode = Boolean.parseBoolean(args[1]);
+            Boolean productionCode = false;
             
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
