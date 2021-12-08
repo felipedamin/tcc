@@ -1,4 +1,4 @@
-# tcc
+# Detecção de Ameaças Silenciosas em Software
 
 Requisitos:
 - instalar java
