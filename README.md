@@ -20,6 +20,8 @@ O método encontrado para alcançar tal objetivo foi baseado na instrumentação
 
 O projeto se insere nos ambientes de Homologação e Produção. Inicialmente, o trecho de código a ser testado passa por um Parser que instrumenta todos os condicionais e, a partir disso, são realizados testes unitários e Fuzzing na aplicação para se entender quais trechos de código são executados mais frequentemente e quais não são. Os trechos que forem menos executados nos testes são considerados suspeitos, por isso, de modo a não prejudicar o desempenho, apenas estes são instrumentados no código a ser colocado em produção. Se executado, o trecho suspeito gera um log.
 
+![Arquitetura](https://github.com/felipedamin/tcc/blob/main/TCC%20(2)%20(1).png)
+
 ## Resultados
 
 Os testes para averiguar o funcionamento da ferramenta foram realizados em uma plataforma de Internet Banking na qual foram inseridos backdoors criados a partir de condicionais, como backdoors de senha mestra. Ao se executar tais backdoors, a ferramenta foi capaz de identificar que um trecho de código suspeito foi executado. O resultado foi de acordo com o esperado.
