@@ -92,7 +92,12 @@ This script takes 5 mandatory args, which are:
 ```bash
 sh src/main/java/xisnove/scripts/homolog.sh -p src/main/java/<project directory>/<file name>.java -u <package>.<class name> -c <package>.<fuzz class name> -m <fuzz test method you want to run> -t <period of time you want it to run>
 ```
-  
+
+For example
+```bash
+sh src/main/java/xisnove/scripts/homolog.sh -p src/main/java/br/usp/larc/nanoib/handlers/LoginRequestHandler.java -u br.usp.larc.nanoib.handlers.LoginFunctionalTest -c br.usp.larc.nanoib.handlers.LoginFuzzing -m fuzz -t 30s
+```
+
 Then after the homolog script is done, you have to run the production script (again from your project root) to instrument the final file with the function for logging suspect executions.
   
 This script takes 1 mandatory argument, which is:

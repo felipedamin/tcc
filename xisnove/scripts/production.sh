@@ -17,12 +17,9 @@ done
 mkdir src/main/java/xisnove/parseBackup
 cp $parseFile src/main/java/xisnove/parseBackup/parsedJavaFile.backup
 
+> src/main/java/xisnove/logFile/logFile.out
+
 # find all conditions and mark all branches
 mvn compile exec:java -Dexec.mainClass=xisnove.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
 
 mvn compile
-
-# save back original file
-cp src/main/java/xisnove/parseBackup/parsedJavaFile.backup $parseFile
-
-> src/main/java/xisnove/parseBackup/parsedJavaFile.backup
