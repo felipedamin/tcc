@@ -13,5 +13,16 @@ do
     esac
 done
 
+# save copy of parsed file
+mkdir src/main/java/teste/parseBackup
+cp $parseFile src/main/java/teste/parseBackup/parsedJavaFile.backup
+
 # find all conditions and mark all branches
 mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
+
+mvn compile
+
+# save back original file
+cp src/main/java/teste/parseBackup/parsedJavaFile.backup $parseFile
+
+> src/main/java/teste/parseBackup/parsedJavaFile.backup

@@ -1,6 +1,6 @@
 package teste;
 
-public class Methods {
+public class Main {
 
     private static Integer a = 5;
 
@@ -11,6 +11,18 @@ public class Methods {
     private static Boolean boolean2 = false;
 
     public static void main(String[] args) {
+        funcaoNestedIfs();
+        getA();
+        funcaoIfElseNested();
+        funcaoIfElseIf();
+        funcaoIfmultiplasCondicoes();
+        funcaoIfTryCatch();
+        funcaoIfElseTryCatch();
+        funcaoIfNestedTryCatch();
+        funcaoTernarioNested();
+        funcaoForWhile();
+        boolean resultFuncaoSwitch = funcaoSwitch(true, 5);
+        boolean resultFuncaoSwitchNested = funcaoSwitchNested(true, 5);
         System.out.println("Hello World!");
         if (a < 10 || b < 5) {
             System.out.println("a é menor que 10");

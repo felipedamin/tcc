@@ -1,14 +1,15 @@
 import pandas as pd
+import csv
 import os
 
 def parse_line(line):
     line = line.strip()
     split_string = line.split("#")
-    class_name = split_string[0]
-    method_name = split_string[1]
-    statement_type = split_string[2]
-    condition = split_string[3]
-    condition_value = split_string[4]
+    class_name = split_string[0].replace(" ", "")
+    method_name = split_string[1].replace(" ", "")
+    statement_type = split_string[2].replace(" ", "")
+    condition = split_string[3].replace(" ", "")
+    condition_value = split_string[4].replace(" ", "")
     return {
         'class#method#statement_type#condition': [class_name + '#' + method_name + '#' + statement_type + '#' + condition],
         'condition_value': [condition_value]
@@ -20,8 +21,7 @@ def heuristic_zero_executions(df):
 
 def generate_logfile_dict():
     parsed_lines = dict()
-    # TODO: mudar "teste" para "xisnove"
-    with open(os.path.abspath('src/main/java/teste/logFile/logFile.out')) as fp:
+    with open(os.path.abspath('src/main/java/xisnove/logFile/logFile.out')) as fp:
         line_number = 1
         while True:
             line = fp.readline()
@@ -42,8 +42,7 @@ def generate_suspect_executions():
     df["count"] = 1
     df = df.groupby(columns)["count"].count().reset_index()
     df_clean = heuristic_zero_executions(df)
-    # TODO: mudar "teste" para "xisnove"
-    frequency_analyser_dir = 'src/main/java/teste/frequency_analyser'
+    frequency_analyser_dir = 'src/main/java/xisnove/frequency_analyser'
     file_name = os.path.join(frequency_analyser_dir, 'conditions_of_interest.out')
     df_clean = df_clean['class#method#statement_type#condition']
     df_clean.to_csv(file_name, sep=' ', encoding='utf-8', index=False, header=False)
