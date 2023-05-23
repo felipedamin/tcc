@@ -1,0 +1,126 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Benchmarks",
+            "request": "launch",
+            "mainClass": "benchmark.Benchmarks",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "AstFindAllConditionalModifier",
+            "request": "launch",
+            "mainClass": "xisnove.AstFindAllConditionalModifier",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "benchmark100",
+            "request": "launch",
+            "mainClass": "benchmark.benchmark100",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "benchmark1000",
+            "request": "launch",
+            "mainClass": "benchmark.benchmark1000",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "benchmark10",
+            "request": "launch",
+            "mainClass": "benchmark.benchmark10",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "AddLogForAllConditions",
+            "request": "launch",
+            "mainClass": "teste.AddLogForAllConditions",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "AddLogForAllConditionsAndClasses",
+            "request": "launch",
+            "mainClass": "teste.AddLogForAllConditionsAndClasses",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "teste.App",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "AstFindAllConditionalModifier",
+            "request": "launch",
+            "mainClass": "teste.AstFindAllConditionalModifier",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "AstFindAllConditionalModifierAllClasses",
+            "request": "launch",
+            "mainClass": "teste.AstFindAllConditionalModifierAllClasses",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "AstVisitorConditionalModifier",
+            "request": "launch",
+            "mainClass": "teste.AstVisitorConditionalModifier",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "Blabla",
+            "request": "launch",
+            "mainClass": "teste.Blabla",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "FlaggedConditions",
+            "request": "launch",
+            "mainClass": "teste.FlaggedConditions",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "LogForEachMethod",
+            "request": "launch",
+            "mainClass": "teste.LogForEachMethod",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "Methods",
+            "request": "launch",
+            "mainClass": "teste.Methods",
+            "projectName": "teste"
+        },
+        {
+            "type": "java",
+            "name": "invertingIFs",
+            "request": "launch",
+            "mainClass": "teste.invertingIFs",
+            "projectName": "teste"
+        }
+    ]
+}

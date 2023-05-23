@@ -5,7 +5,6 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.BinaryExpr;
-import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -31,44 +30,52 @@ import java.io.PrintWriter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
+    private static Boolean saveAstDotFile = false;
     public static void main(String[] args) throws IOException {
-        // // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
-        // // In this case the root directory is found by taking the root from the current Maven module,
-        // SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
-        // // Our sample is in the root of this directory, so no package name.
-        // CompilationUnit cu = sourceRoot.parse("", "Methods.java");
+        SourceRoot sourceRoot;
+        CompilationUnit compilationUnit;
 
         // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
         // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
-        Path projectRoot = Paths.get(args[0]).toAbsolutePath();
-        // System.out.println(projectRoot);
-        String projectRootString = projectRoot.normalize().toString();
-        File parseFile = new File(projectRootString);
-        // System.out.println(parseFile.getParent());
-        SourceRoot sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
-        CompilationUnit cu = sourceRoot.parse("", parseFile.getName().toString());
+        if (args.length > 0) {
+            Path projectRoot = Paths.get(args[0]).toAbsolutePath();
+            // System.out.println(projectRoot);
+            String projectRootString = projectRoot.normalize().toString();
+            File parseFile = new File(projectRootString);
+            // System.out.println(parseFile.getParent());
+            sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
+            compilationUnit = sourceRoot.parse("", parseFile.getName().toString());
+        } else {
+            // // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
+            // // In this case the root directory is found by taking the root from the current Maven module,
+            // sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/test/java/teste"));
+            // // Our sample is in the root of this directory, so no package name.
+            // compilationUnit = sourceRoot.parse("", "Methods.java");
+            
+            sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/main/java/benchmark"));
+            compilationUnit = sourceRoot.parse("", "Benchmark10.java");
+        }
 
-        DotPrinter printer = new DotPrinter(true);
-        try (FileWriter fileWriter = new FileWriter("astBefore.dot")) {
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            printWriter.print(printer.output(cu));
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (saveAstDotFile) {
+            DotPrinter printer = new DotPrinter(true);
+            try (FileWriter fileWriter = new FileWriter("astBefore.dot")) {
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.print(printer.output(compilationUnit));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
             
-        cu.addImport(new ImportDeclaration("teste.logFile.LogFile", false, false));
+        compilationUnit.addImport(new ImportDeclaration("xisnove.logFile.LogFile", false, false));
 
-        cu.accept(new ModifierVisitor<String[]>() {
+        compilationUnit.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
-            Boolean productionCode = Boolean.parseBoolean(args[1]);
-            // Boolean productionCode = false;
             
             @Override
             public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
@@ -86,6 +93,12 @@ public class AstFindAllConditionalModifier {
                 // Processa todos os if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
                     Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
+
+                    Boolean productionCode = false;
+                    if (args.length>0) {
+                        productionCode = Boolean.parseBoolean(args[1]);
+                    }
+
                     if (productionCode) {
                         try {
                             flaggedConditions = FlaggedConditions.getConditions();
@@ -115,12 +128,15 @@ public class AstFindAllConditionalModifier {
         // Salva todas as alterações
         sourceRoot.saveAll();
 
-        // Salva a nova arvore
-        try (FileWriter fileWriter = new FileWriter("astAfter.dot")) {
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            printWriter.print(printer.output(cu));
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (saveAstDotFile) {
+            // Salva a nova arvore
+            DotPrinter printer = new DotPrinter(true);
+            try (FileWriter fileWriter = new FileWriter("astAfter.dot")) {
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.print(printer.output(compilationUnit));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -166,7 +182,7 @@ public class AstFindAllConditionalModifier {
                 if (statements.size() > 0) {
                     String classAndMethodName = names[0] + "#" + names[1];
                     String conditionType = "ifStmt";
-                    List<NameExpr> conditionParams = new ArrayList<NameExpr>();
+                    // List<NameExpr> conditionParams = new ArrayList<NameExpr>();
                     
                     // ??ifstmt.childNodes?
                     // BinaryExpr conditionLeftToken = condition.asBinaryExpr();
@@ -180,11 +196,17 @@ public class AstFindAllConditionalModifier {
                     
                     // ArrayList<Object> paramValue;
                     // TODO: remover duplicatas do conditionParams
-                    if (condition.isBinaryExpr()) {
-                        conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
-                    } else {
-                        conditionParams.add(condition.asNameExpr());
-                    }
+                    // if (condition.isBinaryExpr()) {
+                    //     conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+                    // } else if (condition.isNameExpr()){
+                    //     conditionParams.add(condition.asNameExpr());
+                    // } else if (condition.isMethodCallExpr()) {
+                    //     System.out.println("aqui");
+                    //     System.out.println(condition);
+                    //     System.out.println(condition.asMethodCallExpr().findAll(NameExpr.class));
+                    //     // conditionParams.add(condition.asMethodCallExpr().findAll(NameExpr.class));
+                    // }
+                    // System.out.println(conditionParams);
 
                     // OUTRA FORMA
                     // add a statement to the method body
@@ -204,7 +226,7 @@ public class AstFindAllConditionalModifier {
                         "LogFile.write",
                         new StringLiteralExpr(classAndMethodName),
                         new StringLiteralExpr(conditionType),
-                        new StringLiteralExpr(condition.toString())
+                        new StringLiteralExpr(condition.toString().replace("\"", "\'"))
                         );
                     testExpr.addArgument(condition); // boolean finalValue
                     

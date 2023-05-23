@@ -15,7 +15,7 @@ public class LogFile {
         // "class#methodName#a<10 && b!=a#[a.toString(),b.toString()]#true
         // "class#methodName#(if|for|while|switch)#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true"
         // "class#methodName#(if|for|while|switch)#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true#(numLinha|hash)"
-        String formatted = String.format("%s#%s#%s\n", classAndMethodName);
+        String formatted = String.format("LogStart:%s#%s#%s:LogFinish\n", classAndMethodName);
         try {
             file.write(formatted);
         } catch (IOException e) {
@@ -29,7 +29,7 @@ public class LogFile {
         Path projectRoot = Paths.get("src/main/java/xisnove/logFile").toAbsolutePath();
         FileWriter file = new FileWriter(projectRoot.normalize().toString() + "/logFile.out", true);
 
-        String formatted = String.format("%s#%s#%s#%b#%s#%s\n", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
+        String formatted = String.format("LogStart:%s#%s#%s#%b#%s#%s:LogFinish\n", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
         try {
             file.write(formatted);
         } catch (IOException e) {
@@ -45,7 +45,7 @@ public class LogFile {
         FileWriter file = new FileWriter(projectRoot.normalize().toString() + "/logFile.out", true);
         // array, se for nested, se nao for, loga mais uma linha
         System.out.println(conditionType);
-        String formatted = String.format("%s#%s#%s#%b\n", classAndMethodName, conditionType, condition, finalValue);
+        String formatted = String.format("LogStart:%s#%s#%s#%b:LogFinish\n", classAndMethodName, conditionType, condition, finalValue);
         try {
             file.write(formatted);
         } catch (IOException e) {
