@@ -1,55 +1,50 @@
 package br.usp.larc.Modifier;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.*;
+import java.util.logging.*;
 
 public class LogFile {
+    private static final Logger logger = Logger.getLogger(LogFile.class.getName());
+    private static final FileHandler fileHandler;
 
-    public static void write(String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue) throws IOException {
-        FileWriter file = new FileWriter("logFile.out", true);
+    static {
+        try {
+            // Remove default console handler
+            logger.setUseParentHandlers(false);
+            
+            fileHandler = new FileHandler("xisnove/src/main/java/br/usp/larc/Modifier/logFile.out", true); // Set append mode to true
+            logger.addHandler(fileHandler);
+            fileHandler.setFormatter(new SimpleFormatter() {
+                @Override
+                public synchronized String format(LogRecord record) {
+                    return record.getMessage() + System.lineSeparator();
+                }
+            });
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError("Failed to initialize logger");
+        }
+    }
+
+    public static void write(String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue) {
         // array, se for nested, se nao for, loga mais uma linha
-        System.out.println("class#methodName#[statementType1:params1,...,statementTypeN:paramsN]");
         // ordem de implementaçao:
         // "class#methodName#[a<10,b!=a]#true
         // "class#methodName#a<10 && b!=a#[a.toString(),b.toString()]#true
         // "class#methodName#(if|for|while|switch)#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true"
         // "class#methodName#(if|for|while|switch)#a<10 && b!=a#[a,b]#[a.toString(),b.toString()]#true#(numLinha|hash)"
-        String formatted = String.format("%s#%s#%s\n", classAndMethodName);
-        try {
-            file.write(formatted);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        file.close();
+        String formatted = String.format("%s#%s#%s", classAndMethodName);
+        logger.info(formatted);
     }
 
-    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue, String allTokens, String ...tokenValues) throws IOException {
+    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue, String allTokens, String ...tokenValues) {
         // "class#methodName#a<10 && b!=a#true
-        Path projectRoot = Paths.get("src/main/java/br/usp/larc/Modifier").toAbsolutePath();
-        FileWriter file = new FileWriter(projectRoot.normalize().toString() + "/logFile.out", true);
-
-        String formatted = String.format("%s#%s#%s#%b#%s#%s\n", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
-        try {
-            file.write(formatted);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-
-        file.close();
+        String formatted = String.format("%s#%s#%s#%b#%s#%s", classAndMethodName, conditionType, condition, finalValue, allTokens, String.join(",", tokenValues));
+        logger.info(formatted);
     }
 
-    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue) throws IOException {
-        Path projectRoot = Paths.get("src/main/java/br/usp/larc/Modifier").toAbsolutePath();
-        FileWriter file = new FileWriter(projectRoot.normalize().toString() + "/logFile.out", true);
+    public static void write(String classAndMethodName, String conditionType, String condition, boolean finalValue) {
         // array, se for nested, se nao for, loga mais uma linha
-        System.out.println(conditionType);
-        String formatted = String.format("%s#%s#%s#%b\n", classAndMethodName, conditionType, condition, finalValue);
-        try {
-            file.write(formatted);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        file.close();
+        String formatted = String.format("%s#%s#%s#%b", classAndMethodName, conditionType, condition, finalValue);
+        logger.info(formatted);
     }
 }

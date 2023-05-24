@@ -7,20 +7,20 @@ import br.usp.larc.Modifier.AstFindAllConditionalModifier;
 
 public class Benchmarks {
     public static void main(String[] args) throws IOException {
-        System.out.println("Instrumented (ms):");
-        runAllInstrumented();
+        // System.out.println("Instrumented (ms):");
+        // runAllInstrumented();
 
-        // double[] benchStats = runBenchmark1000();
-        // double[] benchXisnoveStats = runXisnove();
+        double[] benchStats = runBenchmark10();
+        double[] benchXisnoveStats = runXisnove();
 
-        // System.out.println("\nBench1000 (ms):");
-        // printStatsArrayInMs(benchStats);
+        System.out.println("\nBench10 (ms):");
+        printStatsArrayInMs(benchStats);
     
-        // System.out.println("Xisnove (ms):");
-        // printStatsArrayInMs(benchXisnoveStats);
+        System.out.println("Xisnove (ms):");
+        printStatsArrayInMs(benchXisnoveStats);
     }
 
-    public static void runAllInstrumented() throws IOException {
+    public static void runAllInstrumented() {
         long[] resultsBench10 = new long[100];
         for (int i =0; i<100; i++) {
             long bench10 = BenchmarkInstrumented10.getNanotime();

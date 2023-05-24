@@ -121,9 +121,6 @@ public class AstFindAllConditionalModifier {
                     Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) && flaggedConditions.get(conditionId).contains(conditionString);
                     
                     if (!productionCode || (productionCode && shouldInstrumentThisCondition)) {
-                        if (!md.isThrown(IOException.class)) {
-                            md.addThrownException(IOException.class);
-                        }
                         findAndAddLog(ifStmt, this.names, ifStmtNumber);
                     }
                 });
@@ -137,7 +134,7 @@ public class AstFindAllConditionalModifier {
             sourceRoot.saveAll();
         } else {
             // When executing the benchmark do not overwrite the original class
-            String outputFilePath = "xisnove/src/main/java/br/usp/larc/Benchmark/Benchmark1000.output";
+            String outputFilePath = "xisnove/src/main/java/br/usp/larc/Benchmark/Benchmark10.output";
             File outputFile = new File(outputFilePath);
     
             // Ensure the output directory exists

@@ -1,7 +1,6 @@
 package br.usp.larc.Benchmark;
 
 import br.usp.larc.Modifier.LogFile;
-import java.io.IOException;
 
 public class BenchmarkInstrumented100 {
 
@@ -13,11 +12,11 @@ public class BenchmarkInstrumented100 {
 
     private static Boolean boolean2 = false;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         getNanotime();
     }
 
-    public static long getNanotime() throws IOException {
+    public static long getNanotime() {
         long startTime = System.nanoTime();
         LogFile.write("Benchmark100#getNanotime", "ifStmt", "a != 10", a != 10, "[a]", String.valueOf(a));
         if (a != 10) {

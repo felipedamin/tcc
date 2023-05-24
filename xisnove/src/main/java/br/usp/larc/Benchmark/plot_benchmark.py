@@ -45,23 +45,24 @@ def plot_boxplot(boxplot_values, title):
 # std_values = [15942.243554494098, 21706.97314614522, 59556.95933240389]
 # plot_average_and_std(average_values, std_values)
 
-boxplot__xisnove_values = [
-    [1926.68, 2610.821, 4549.69, 7463.0375, 11873.14],
-    [8156.445, 9385.9615, 12313.556, 16330.518, 26140.924],
-    [133580.01, 158600.9985, 170710.7445, 187550.5635, 225210.686],
+boxplot_xisnove_values = [
+    [1682.076, 2502.1685, 4023.6565, 5437.7245, 8043.97],
+    [7906.338, 8992.945, 11400.0265, 15000.794, 21451.372],
+    [127717.05, 144144.8525, 154919.138, 165136.3985, 188901.03],
 ]
-plot_boxplot(boxplot__xisnove_values, "Time to instrument benchmark code")
+plot_boxplot(boxplot_xisnove_values, "Time to instrument benchmark code")
 
-boxplot__bench_values = [
-    [23.686, 28.7565, 58.0085, 74.4325, 141.858],
-    [68.411, 108.819, 259.197, 324.6595, 532.026],
-    [904.742, 1116.9885, 1232.807, 3260.4275, 6427.337],
+boxplot_bench_values = [
+    [22.672, 24.4595, 42.055, 71.021, 121.488],
+    [101.22, 114.868, 119.4295, 132.056, 155.946],
+    [848.839, 1086.496, 1155.626, 2191.853, 3330.476]
 ]
-plot_boxplot(boxplot__bench_values, "Time to execute benchmark code")
+plot_boxplot(boxplot_bench_values, "Time to execute benchmark code")
 
-boxplot__instrumented_values = [
-    [121.525, 336.5905, 550.4015, 968.4645, 1860.982],
-    [807.38, 1170.101, 1663.473, 2158.2195, 3614.169],
-    [5184.787, 7666.0495, 11701.9055, 15766.145, 21379.616],
+boxplot_instrumented_values = [
+    [50.944, 69.054, 84.2205, 199.5485, 379.407],
+    [356.687, 598.3625, 637.8515, 784.0175, 1038.45],
+    [2368.68, 2757.94, 3104.357, 6649.6345, 10814.553],
 ]
-plot_boxplot(boxplot__xisnove_values, "Time to execute instrumented benchmark code")
+
+plot_boxplot(boxplot_instrumented_values, "Time to execute instrumented benchmark code")
