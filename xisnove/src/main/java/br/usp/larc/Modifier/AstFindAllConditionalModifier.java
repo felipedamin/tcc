@@ -137,7 +137,7 @@ public class AstFindAllConditionalModifier {
             sourceRoot.saveAll();
         } else {
             // When executing the benchmark do not overwrite the original class
-            String outputFilePath = "src/main/java/br/usp/larc/Benchmark/Benchmark1000.output";
+            String outputFilePath = "xisnove/src/main/java/br/usp/larc/Benchmark/Benchmark1000.output";
             File outputFile = new File(outputFilePath);
     
             // Ensure the output directory exists
