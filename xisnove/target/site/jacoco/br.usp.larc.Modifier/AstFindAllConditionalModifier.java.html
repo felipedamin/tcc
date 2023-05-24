@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AstFindAllConditionalModifier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">xisnove</a> &gt; <a href="index.source.html" class="el_package">br.usp.larc.Modifier</a> &gt; <span class="el_source">AstFindAllConditionalModifier.java</span></div><h1>AstFindAllConditionalModifier.java</h1><pre class="source lang-java linenums">package br.usp.larc.Modifier;
+
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.SwitchEntry;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.github.javaparser.ast.visitor.Visitable;
+import com.github.javaparser.printer.DotPrinter;
+import com.github.javaparser.utils.CodeGenerationUtils;
+import com.github.javaparser.utils.SourceRoot;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+<span class="nc" id="L39">public class AstFindAllConditionalModifier {</span>
+    public static Statement addBeforeThisStmt;
+<span class="nc" id="L41">    private static Boolean saveAstDotFile = false;</span>
+    public static void main(String[] args) throws IOException {
+        SourceRoot sourceRoot;
+        CompilationUnit compilationUnit;
+
+        // Para rodar o projeto agora precisa passar 2 args em -Dexec.args=&quot;&lt;arquivo para parsear começando em src&gt; &lt;true/false para codigo de produçao ou nao&gt;&quot;
+        // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args=&quot;$parseFile true&quot;
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (args.length &gt; 0) {</span>
+<span class="nc" id="L49">            Path projectRoot = Paths.get(args[0]).toAbsolutePath();</span>
+            // System.out.println(projectRoot);
+<span class="nc" id="L51">            String projectRootString = projectRoot.normalize().toString();</span>
+<span class="nc" id="L52">            File parseFile = new File(projectRootString);</span>
+            // System.out.println(parseFile.getParent());
+<span class="nc" id="L54">            sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));</span>
+<span class="nc" id="L55">            compilationUnit = sourceRoot.parse(&quot;&quot;, parseFile.getName().toString());</span>
+<span class="nc" id="L56">        } else {</span>
+            // // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
+            // // In this case the root directory is found by taking the root from the current Maven module,
+            // sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve(&quot;src/test/java/teste&quot;));
+            // // Our sample is in the root of this directory, so no package name.
+            // compilationUnit = sourceRoot.parse(&quot;&quot;, &quot;Methods.java&quot;);
+            
+<span class="nc" id="L63">            sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve(&quot;src/main/java/br/usp/larc/Benchmark&quot;));</span>
+<span class="nc" id="L64">            compilationUnit = sourceRoot.parse(&quot;&quot;, &quot;Benchmark10.java&quot;);</span>
+        }
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (saveAstDotFile) {</span>
+<span class="nc" id="L68">            DotPrinter printer = new DotPrinter(true);</span>
+<span class="nc" id="L69">            try (FileWriter fileWriter = new FileWriter(&quot;astBefore.dot&quot;)) {</span>
+<span class="nc" id="L70">                PrintWriter printWriter = new PrintWriter(fileWriter);</span>
+<span class="nc" id="L71">                printWriter.print(printer.output(compilationUnit));</span>
+<span class="nc" id="L72">            } catch (Exception e) {</span>
+<span class="nc" id="L73">                e.printStackTrace();</span>
+<span class="nc" id="L74">            }</span>
+        }
+            
+<span class="nc" id="L77">        compilationUnit.addImport(new ImportDeclaration(&quot;br.usp.larc.Modifier.LogFile&quot;, false, false));</span>
+
+<span class="nc" id="L79">		compilationUnit.accept(new ModifierVisitor&lt;String[]&gt;() {</span>
+<span class="nc" id="L80">            String[] names = {&quot;&quot;, &quot;&quot;};</span>
+            
+            @Override
+            public Visitable visit(ClassOrInterfaceDeclaration classDeclaration, String[] arg) {
+<span class="nc" id="L84">                String className = classDeclaration.getNameAsString();</span>
+<span class="nc" id="L85">                this.names[0] = className;</span>
+                
+<span class="nc" id="L87">                return super.visit(classDeclaration, this.names);</span>
+            }
+            
+            @Override
+            public Visitable visit(MethodDeclaration md, String[] arg) {
+<span class="nc" id="L92">                String methodName = md.getNameAsString();</span>
+<span class="nc" id="L93">                this.names[1] = methodName;</span>
+
+<span class="nc" id="L95">                Integer[] counter = {1};  // Used to identify when there are two identical conditions on the same method</span>
+                // Processa todos os if's:
+<span class="nc" id="L97">                md.findAll(IfStmt.class).forEach(ifStmt -&gt; {</span>
+<span class="nc" id="L98">                    Map&lt;String, ArrayList&lt;String&gt;&gt; flaggedConditions = new HashMap&lt;String, ArrayList&lt;String&gt;&gt;();;</span>
+<span class="nc" id="L99">                    Boolean productionCode = false;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                    if (args.length&gt;0) {</span>
+<span class="nc" id="L101">                        productionCode = Boolean.parseBoolean(args[1]);</span>
+                    }
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                    if (productionCode) {</span>
+                        try {
+<span class="nc" id="L106">                            flaggedConditions = FlaggedConditions.getConditions();</span>
+<span class="nc" id="L107">                        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L108">                            e.printStackTrace();</span>
+<span class="nc" id="L109">                        }</span>
+                    }
+
+<span class="nc" id="L112">                    Integer ifStmtNumber = counter[0]++;</span>
+<span class="nc" id="L113">                    Expression condition = ifStmt.getCondition();</span>
+<span class="nc" id="L114">                    String conditionString = condition.toString();</span>
+<span class="nc" id="L115">                    String conditionId = this.names[0] + &quot;#&quot; + this.names[1] + &quot;#ifStmt&quot; + ifStmtNumber;</span>
+
+<span class="nc" id="L117">                    conditionString = conditionString.replaceAll(&quot;\\s&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">                    Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) &amp;&amp; flaggedConditions.get(conditionId).contains(conditionString);</span>
+                    
+<span class="nc bnc" id="L120" title="All 6 branches missed.">                    if (!productionCode || (productionCode &amp;&amp; shouldInstrumentThisCondition)) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                        if (!md.isThrown(IOException.class)) {</span>
+<span class="nc" id="L122">                            md.addThrownException(IOException.class);</span>
+                        }
+<span class="nc" id="L124">                        findAndAddLog(ifStmt, this.names, ifStmtNumber);</span>
+                    }
+<span class="nc" id="L126">                });</span>
+                // Chama-se o super.visit() para garantir que todos os nós serão visitados
+<span class="nc" id="L128">                return super.visit(md, this.names);</span>
+            }
+        }, null); 
+
+        // Salva todas as alterações
+        // sourceRoot.saveAll();
+
+        // Save the modified class with a new name
+<span class="nc" id="L136">        String outputFilePath = &quot;src/main/java/br/usp/larc/Benchmark/Benchmark10.output&quot;;</span>
+<span class="nc" id="L137">        File outputFile = new File(outputFilePath);</span>
+
+        // Ensure the output directory exists
+<span class="nc" id="L140">        outputFile.getParentFile().mkdirs();</span>
+
+        // Write the modified compilation unit to the output file
+<span class="nc" id="L143">        Files.write(outputFile.toPath(), compilationUnit.toString().getBytes(), StandardOpenOption.CREATE);</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (saveAstDotFile) {</span>
+            // Salva a nova arvore
+<span class="nc" id="L147">            DotPrinter printer = new DotPrinter(true);</span>
+<span class="nc" id="L148">            try (FileWriter fileWriter = new FileWriter(&quot;astAfter.dot&quot;)) {</span>
+<span class="nc" id="L149">                PrintWriter printWriter = new PrintWriter(fileWriter);</span>
+<span class="nc" id="L150">                printWriter.print(printer.output(compilationUnit));</span>
+<span class="nc" id="L151">            } catch (Exception e) {</span>
+<span class="nc" id="L152">                e.printStackTrace();</span>
+<span class="nc" id="L153">            }</span>
+        }
+<span class="nc" id="L155">    }</span>
+
+    public static NodeList&lt;Statement&gt; findTopLevelIf(Node parent) {
+<span class="nc" id="L158">        IfStmt parentAsIfStmt = ((IfStmt) parent);</span>
+<span class="nc" id="L159">        addBeforeThisStmt = parentAsIfStmt;</span>
+<span class="nc" id="L160">        NodeList&lt;Statement&gt; statements = new NodeList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (parentAsIfStmt.getParentNode().isPresent()) {</span>
+<span class="nc" id="L163">            Node granpa = parentAsIfStmt.getParentNode().get();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (granpa.getClass().getName() == &quot;com.github.javaparser.ast.stmt.IfStmt&quot;) {</span>
+<span class="nc" id="L165">                statements = findTopLevelIf(granpa);</span>
+            }
+            else {
+<span class="nc" id="L168">                statements = ((BlockStmt) parentAsIfStmt.getParentNode().get()).getStatements();</span>
+            } 
+        }
+<span class="nc" id="L171">        return statements;</span>
+    }
+
+    public static ExpressionStmt createLogExpression(NodeList&lt;Statement&gt; statements, String[] names, Expression condition) {
+<span class="nc" id="L175">        String classAndMethodName = names[0] + &quot;#&quot; + names[1];</span>
+<span class="nc" id="L176">        String conditionType = &quot;ifStmt&quot;;</span>
+        // List&lt;NameExpr&gt; conditionParams = new ArrayList&lt;NameExpr&gt;();
+        
+        // ??ifstmt.childNodes?
+        // BinaryExpr conditionLeftToken = condition.asBinaryExpr();
+        // BinaryExpr conditionRightToken = condition.asBinaryExpr();
+        // while (conditionLeftToken.asBinaryExpr().getLeft().isBinaryExpr()) {
+        //     conditionLeftToken = (BinaryExpr) conditionLeftToken.asBinaryExpr().getLeft();
+        // }
+        // while (conditionRightToken.asBinaryExpr().getRight().isBinaryExpr()) {
+        //     conditionRightToken = (BinaryExpr) conditionRightToken.asBinaryExpr().getRight();
+        // }
+        
+        // ArrayList&lt;Object&gt; paramValue;
+        // TODO: remover duplicatas do conditionParams
+        // if (condition.isBinaryExpr()) {
+        //     conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+        // } else if (condition.isNameExpr()){
+        //     conditionParams.add(condition.asNameExpr());
+        // } else if (condition.isMethodCallExpr()) {
+        //     System.out.println(&quot;aqui&quot;);
+        //     System.out.println(condition);
+        //     System.out.println(condition.asMethodCallExpr().findAll(NameExpr.class));
+        //     // conditionParams.add(condition.asMethodCallExpr().findAll(NameExpr.class));
+        // }
+        // System.out.println(conditionParams);
+
+        // OUTRA FORMA
+        // add a statement to the method body
+        // NameExpr clazz = new NameExpr(&quot;System&quot;);
+        // FieldAccessExpr field = new FieldAccessExpr(clazz, &quot;out&quot;);
+        // MethodCallExpr call = new MethodCallExpr(field, &quot;println&quot;);
+        // call.addArgument(new StringLiteralExpr(&quot;Hello World!&quot;));
+        // block.addStatement(call);
+
+        // OUTRA FORMA 2
+        // new MethodCallExpr()
+        //  .setScope(new NameExpr(Float.class.getName()))
+        //  .setName(&quot;parseFloat&quot;)
+        //  .addArgument(new StringLiteralExpr(value));
+
+<span class="nc" id="L217">        MethodCallExpr testExpr = new MethodCallExpr(</span>
+            &quot;LogFile.write&quot;,
+            new StringLiteralExpr(classAndMethodName),
+            new StringLiteralExpr(conditionType),
+<span class="nc" id="L221">            new StringLiteralExpr(condition.toString().replace(&quot;\&quot;&quot;, &quot;\'&quot;))</span>
+            );
+<span class="nc" id="L223">        testExpr.addArgument(condition); // boolean finalValue</span>
+        
+        // condition.childNodes
+<span class="nc" id="L226">        ArrayList&lt;String&gt; tokenAsString = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L227">        ArrayList&lt;Expression&gt; tokens = new ArrayList&lt;Expression&gt;();</span>
+<span class="nc" id="L228">        condition.getChildNodes().forEach(e -&gt; {</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">            if (e.getClass() == BinaryExpr.class){</span>
+<span class="nc" id="L230">                Expression eAsExpression = ((Expression) e);</span>
+<span class="nc" id="L231">                tokens.add(eAsExpression);</span>
+<span class="nc" id="L232">                tokenAsString.add(e.toString());</span>
+<span class="nc" id="L233">            }</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            else if (e.getClass() == UnaryExpr.class){</span>
+<span class="nc" id="L235">                Expression eAsExpression = ((Expression) e);</span>
+<span class="nc" id="L236">                tokens.add(eAsExpression);</span>
+<span class="nc" id="L237">                tokenAsString.add(e.toString());</span>
+<span class="nc" id="L238">            }</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">            else if (e.getClass() == NameExpr.class){</span>
+<span class="nc" id="L240">                Expression eAsExpression = ((Expression) e);</span>
+<span class="nc" id="L241">                tokens.add(eAsExpression);</span>
+<span class="nc" id="L242">                tokenAsString.add(e.toString());</span>
+            }
+<span class="nc" id="L244">        });</span>
+        
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (tokenAsString.size() &gt; 0) {</span>
+<span class="nc" id="L247">            testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));</span>
+        }
+
+<span class="nc" id="L250">        Expression[] tokensAsArray = new Expression[tokens.size()];</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        for (int i =0; i&lt;tokens.size(); i++) {</span>
+<span class="nc" id="L252">            tokensAsArray[i] = tokens.get(i);</span>
+<span class="nc" id="L253">            testExpr.addArgument(new MethodCallExpr(</span>
+                &quot;String.valueOf&quot;,
+                tokensAsArray[i]
+            ));
+        }
+
+<span class="nc" id="L259">        ExpressionStmt exprStmt = new ExpressionStmt(testExpr);</span>
+<span class="nc" id="L260">        return exprStmt;</span>
+    }
+
+    public static void findAndAddLog(IfStmt ifStmt, String[] names, Integer ifStmtNumber) {
+<span class="nc" id="L264">        Expression condition = ifStmt.getCondition();</span>
+    
+<span class="nc" id="L266">        ifStmt.getParentNode()</span>
+            // Se o código java é válido, sempre vai existir esse parent
+<span class="nc" id="L268">            .map(parent -&gt; {</span>
+<span class="nc" id="L269">                addBeforeThisStmt = ifStmt;</span>
+<span class="nc" id="L270">                NodeList&lt;Statement&gt; statements = new NodeList&lt;&gt;();</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                if (parent.getClass() == IfStmt.class) {</span>
+<span class="nc" id="L272">                    statements = findTopLevelIf(parent);</span>
+                }
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                if (parent.getClass().getName() == &quot;com.github.javaparser.ast.stmt.SwitchEntry&quot;) {</span>
+<span class="nc" id="L275">                    SwitchEntry parentAsSwitchEntry = ((SwitchEntry) parent);</span>
+<span class="nc" id="L276">                    statements = parentAsSwitchEntry.getStatements();</span>
+                }
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                if (parent.getClass().getName() == &quot;com.github.javaparser.ast.stmt.BlockStmt&quot;) {</span>
+<span class="nc" id="L279">                    statements = ((BlockStmt) parent).getStatements();</span>
+                }
+
+<span class="nc" id="L282">                return statements;</span>
+            })
+<span class="nc" id="L284">            .ifPresent(statements -&gt; {</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                if (statements.size() &gt; 0) {</span>
+<span class="nc" id="L286">                    ExpressionStmt exprStmt = createLogExpression(statements, names, condition);</span>
+                    // statements.addBefore(exprStmt, addBeforeThisStmt); 
+
+                    // code below might cause inconsistencies with funcaoIfElseNested in Methods.java
+<span class="nc" id="L290">                    Integer correctIndexForIfStmtNumber = 0;</span>
+<span class="nc" id="L291">                    Integer counter = 0;</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                    for (int i = 0; i&lt;statements.size(); i++) {</span>
+<span class="nc" id="L293">                        Statement statement = statements.get(i);</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">                        if (statement.getClass().getName() == &quot;com.github.javaparser.ast.stmt.IfStmt&quot;) {</span>
+<span class="nc" id="L295">                            counter++;</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                            if (counter == ifStmtNumber) {</span>
+<span class="nc" id="L297">                                correctIndexForIfStmtNumber = i;</span>
+                            }
+                        }
+                    }
+<span class="nc" id="L301">                    statements.add(correctIndexForIfStmtNumber, exprStmt);</span>
+                }
+<span class="nc" id="L303">            });</span>
+<span class="nc" id="L304">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

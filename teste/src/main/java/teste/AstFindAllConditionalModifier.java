@@ -31,8 +31,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
@@ -74,7 +76,7 @@ public class AstFindAllConditionalModifier {
             
         compilationUnit.addImport(new ImportDeclaration("xisnove.logFile.LogFile", false, false));
 
-        compilationUnit.accept(new ModifierVisitor<String[]>() {
+		compilationUnit.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
             
             @Override
@@ -90,10 +92,10 @@ public class AstFindAllConditionalModifier {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
 
+                Integer[] counter = {1};  // Used to identify when there are two identical conditions on the same method
                 // Processa todos os if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
                     Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
-
                     Boolean productionCode = false;
                     if (args.length>0) {
                         productionCode = Boolean.parseBoolean(args[1]);
@@ -107,9 +109,11 @@ public class AstFindAllConditionalModifier {
                         }
                     }
 
+                    Integer ifStmtNumber = counter[0]++;
                     Expression condition = ifStmt.getCondition();
                     String conditionString = condition.toString();
-                    String conditionId = this.names[0] + "#" + this.names[1] + "#ifStmt";
+                    String conditionId = this.names[0] + "#" + this.names[1] + "#ifStmt" + ifStmtNumber;
+
                     conditionString = conditionString.replaceAll("\\s", "");
                     Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) && flaggedConditions.get(conditionId).contains(conditionString);
                     
@@ -117,7 +121,7 @@ public class AstFindAllConditionalModifier {
                         if (!md.isThrown(IOException.class)) {
                             md.addThrownException(IOException.class);
                         }
-                        findAndAddLog(ifStmt, this.names);
+                        findAndAddLog(ifStmt, this.names, ifStmtNumber);
                     }
                 });
                 // Chama-se o super.visit() para garantir que todos os nós serão visitados
@@ -126,7 +130,17 @@ public class AstFindAllConditionalModifier {
         }, null); 
 
         // Salva todas as alterações
-        sourceRoot.saveAll();
+        // sourceRoot.saveAll();
+
+        // Save the modified class with a new name
+        String outputFilePath = "teste/src/main/java/benchmark/Benchmark10.output";
+        File outputFile = new File(outputFilePath);
+
+        // Ensure the output directory exists
+        outputFile.getParentFile().mkdirs();
+
+        // Write the modified compilation unit to the output file
+        Files.write(outputFile.toPath(), compilationUnit.toString().getBytes(), StandardOpenOption.CREATE);
 
         if (saveAstDotFile) {
             // Salva a nova arvore
@@ -157,7 +171,96 @@ public class AstFindAllConditionalModifier {
         return statements;
     }
 
-    public static void findAndAddLog(IfStmt ifStmt, String[] names) {
+    public static ExpressionStmt createLogExpression(NodeList<Statement> statements, String[] names, Expression condition) {
+        String classAndMethodName = names[0] + "#" + names[1];
+        String conditionType = "ifStmt";
+        // List<NameExpr> conditionParams = new ArrayList<NameExpr>();
+        
+        // ??ifstmt.childNodes?
+        // BinaryExpr conditionLeftToken = condition.asBinaryExpr();
+        // BinaryExpr conditionRightToken = condition.asBinaryExpr();
+        // while (conditionLeftToken.asBinaryExpr().getLeft().isBinaryExpr()) {
+        //     conditionLeftToken = (BinaryExpr) conditionLeftToken.asBinaryExpr().getLeft();
+        // }
+        // while (conditionRightToken.asBinaryExpr().getRight().isBinaryExpr()) {
+        //     conditionRightToken = (BinaryExpr) conditionRightToken.asBinaryExpr().getRight();
+        // }
+        
+        // ArrayList<Object> paramValue;
+        // TODO: remover duplicatas do conditionParams
+        // if (condition.isBinaryExpr()) {
+        //     conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
+        // } else if (condition.isNameExpr()){
+        //     conditionParams.add(condition.asNameExpr());
+        // } else if (condition.isMethodCallExpr()) {
+        //     System.out.println("aqui");
+        //     System.out.println(condition);
+        //     System.out.println(condition.asMethodCallExpr().findAll(NameExpr.class));
+        //     // conditionParams.add(condition.asMethodCallExpr().findAll(NameExpr.class));
+        // }
+        // System.out.println(conditionParams);
+
+        // OUTRA FORMA
+        // add a statement to the method body
+        // NameExpr clazz = new NameExpr("System");
+        // FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
+        // MethodCallExpr call = new MethodCallExpr(field, "println");
+        // call.addArgument(new StringLiteralExpr("Hello World!"));
+        // block.addStatement(call);
+
+        // OUTRA FORMA 2
+        // new MethodCallExpr()
+        //  .setScope(new NameExpr(Float.class.getName()))
+        //  .setName("parseFloat")
+        //  .addArgument(new StringLiteralExpr(value));
+
+        MethodCallExpr testExpr = new MethodCallExpr(
+            "LogFile.write",
+            new StringLiteralExpr(classAndMethodName),
+            new StringLiteralExpr(conditionType),
+            new StringLiteralExpr(condition.toString().replace("\"", "\'"))
+            );
+        testExpr.addArgument(condition); // boolean finalValue
+        
+        // condition.childNodes
+        ArrayList<String> tokenAsString = new ArrayList<String>();
+        ArrayList<Expression> tokens = new ArrayList<Expression>();
+        condition.getChildNodes().forEach(e -> {
+            if (e.getClass() == BinaryExpr.class){
+                Expression eAsExpression = ((Expression) e);
+                tokens.add(eAsExpression);
+                tokenAsString.add(e.toString());
+            }
+            else if (e.getClass() == UnaryExpr.class){
+                Expression eAsExpression = ((Expression) e);
+                tokens.add(eAsExpression);
+                tokenAsString.add(e.toString());
+            }
+            else if (e.getClass() == NameExpr.class){
+                Expression eAsExpression = ((Expression) e);
+                tokens.add(eAsExpression);
+                tokenAsString.add(e.toString());
+            }
+        });
+        
+        if (tokenAsString.size() > 0) {
+            testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));
+        }
+
+        Expression[] tokensAsArray = new Expression[tokens.size()];
+        for (int i =0; i<tokens.size(); i++) {
+            tokensAsArray[i] = tokens.get(i);
+            testExpr.addArgument(new MethodCallExpr(
+                "String.valueOf",
+                tokensAsArray[i]
+            ));
+        }
+
+        ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
+        return exprStmt;
+    }
+
+    public static void findAndAddLog(IfStmt ifStmt, String[] names, Integer ifStmtNumber) {
         Expression condition = ifStmt.getCondition();
     
         ifStmt.getParentNode()
@@ -180,94 +283,22 @@ public class AstFindAllConditionalModifier {
             })
             .ifPresent(statements -> {
                 if (statements.size() > 0) {
-                    String classAndMethodName = names[0] + "#" + names[1];
-                    String conditionType = "ifStmt";
-                    // List<NameExpr> conditionParams = new ArrayList<NameExpr>();
-                    
-                    // ??ifstmt.childNodes?
-                    // BinaryExpr conditionLeftToken = condition.asBinaryExpr();
-                    // BinaryExpr conditionRightToken = condition.asBinaryExpr();
-                    // while (conditionLeftToken.asBinaryExpr().getLeft().isBinaryExpr()) {
-                    //     conditionLeftToken = (BinaryExpr) conditionLeftToken.asBinaryExpr().getLeft();
-                    // }
-                    // while (conditionRightToken.asBinaryExpr().getRight().isBinaryExpr()) {
-                    //     conditionRightToken = (BinaryExpr) conditionRightToken.asBinaryExpr().getRight();
-                    // }
-                    
-                    // ArrayList<Object> paramValue;
-                    // TODO: remover duplicatas do conditionParams
-                    // if (condition.isBinaryExpr()) {
-                    //     conditionParams = condition.asBinaryExpr().findAll(NameExpr.class);
-                    // } else if (condition.isNameExpr()){
-                    //     conditionParams.add(condition.asNameExpr());
-                    // } else if (condition.isMethodCallExpr()) {
-                    //     System.out.println("aqui");
-                    //     System.out.println(condition);
-                    //     System.out.println(condition.asMethodCallExpr().findAll(NameExpr.class));
-                    //     // conditionParams.add(condition.asMethodCallExpr().findAll(NameExpr.class));
-                    // }
-                    // System.out.println(conditionParams);
+                    ExpressionStmt exprStmt = createLogExpression(statements, names, condition);
+                    // statements.addBefore(exprStmt, addBeforeThisStmt); 
 
-                    // OUTRA FORMA
-                    // add a statement to the method body
-                    // NameExpr clazz = new NameExpr("System");
-                    // FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
-                    // MethodCallExpr call = new MethodCallExpr(field, "println");
-                    // call.addArgument(new StringLiteralExpr("Hello World!"));
-                    // block.addStatement(call);
-
-                    // OUTRA FORMA 2
-                    // new MethodCallExpr()
-                    //  .setScope(new NameExpr(Float.class.getName()))
-                    //  .setName("parseFloat")
-                    //  .addArgument(new StringLiteralExpr(value));
-
-                    MethodCallExpr testExpr = new MethodCallExpr(
-                        "LogFile.write",
-                        new StringLiteralExpr(classAndMethodName),
-                        new StringLiteralExpr(conditionType),
-                        new StringLiteralExpr(condition.toString().replace("\"", "\'"))
-                        );
-                    testExpr.addArgument(condition); // boolean finalValue
-                    
-                    // condition.childNodes
-                    ArrayList<String> tokenAsString = new ArrayList<String>();
-                    ArrayList<Expression> tokens = new ArrayList<Expression>();
-                    condition.getChildNodes().forEach(e -> {
-                        if (e.getClass() == BinaryExpr.class){
-                            Expression eAsExpression = ((Expression) e);
-                            tokens.add(eAsExpression);
-                            tokenAsString.add(e.toString());
+                    // code below might cause inconsistencies with funcaoIfElseNested in Methods.java
+                    Integer correctIndexForIfStmtNumber = 0;
+                    Integer counter = 0;
+                    for (int i = 0; i<statements.size(); i++) {
+                        Statement statement = statements.get(i);
+                        if (statement.getClass().getName() == "com.github.javaparser.ast.stmt.IfStmt") {
+                            counter++;
+                            if (counter == ifStmtNumber) {
+                                correctIndexForIfStmtNumber = i;
+                            }
                         }
-                        else if (e.getClass() == UnaryExpr.class){
-                            Expression eAsExpression = ((Expression) e);
-                            tokens.add(eAsExpression);
-                            tokenAsString.add(e.toString());
-                        }
-                        else if (e.getClass() == NameExpr.class){
-                            Expression eAsExpression = ((Expression) e);
-                            tokens.add(eAsExpression);
-                            tokenAsString.add(e.toString());
-                        }
-                    });
-                    
-                    if (tokenAsString.size() > 0) {
-                        // System.out.println(tokenAsString);
-                        // System.out.println(tokenAsString.toString());
-                        testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));
                     }
-
-                    Expression[] tokensAsArray = new Expression[tokens.size()];
-                    for (int i =0; i<tokens.size(); i++) {
-                        tokensAsArray[i] = tokens.get(i);
-                        testExpr.addArgument(new MethodCallExpr(
-                            "String.valueOf",
-                            tokensAsArray[i]
-                        ));
-                    }
-
-                    ExpressionStmt exprStmt = new ExpressionStmt(testExpr);
-                    statements.addBefore(exprStmt, addBeforeThisStmt); 
+                    statements.add(correctIndexForIfStmtNumber, exprStmt);
                 }
             });
     }

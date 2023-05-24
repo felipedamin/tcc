@@ -1,4 +1,4 @@
-package xisnove;
+package br.usp.larc.Modifier;
 
 import java.util.HashMap;
 import java.util.ArrayList;

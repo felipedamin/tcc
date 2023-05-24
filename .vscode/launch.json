@@ -6,6 +6,41 @@
     "configurations": [
         {
             "type": "java",
+            "name": "AstFindAllConditionalModifier",
+            "request": "launch",
+            "mainClass": "br.usp.larc.Modifier.AstFindAllConditionalModifier",
+            "projectName": "xisnove"
+        },
+        {
+            "type": "java",
+            "name": "Benchmarks",
+            "request": "launch",
+            "mainClass": "br.usp.larc.Benchmark.Benchmarks",
+            "projectName": "xisnove"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "br.usp.larc.App",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "AstFindAllConditionalModifier",
+            "request": "launch",
+            "mainClass": "main.java.br.usp.larc.xisnove.AstFindAllConditionalModifier",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "Benchmarks",
+            "request": "launch",
+            "mainClass": "benchmark.Benchmarks",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Benchmarks",
             "request": "launch",
             "mainClass": "benchmark.Benchmarks",

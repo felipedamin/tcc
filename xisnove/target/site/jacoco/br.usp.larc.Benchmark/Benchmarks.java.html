@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Benchmarks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">xisnove</a> &gt; <a href="index.source.html" class="el_package">br.usp.larc.Benchmark</a> &gt; <span class="el_source">Benchmarks.java</span></div><h1>Benchmarks.java</h1><pre class="source lang-java linenums">package br.usp.larc.Benchmark;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+import br.usp.larc.Modifier.AstFindAllConditionalModifier;
+
+<span class="nc" id="L8">public class Benchmarks {</span>
+    public static void main(String[] args) {
+        try {
+<span class="nc" id="L11">            double[] benchStats = runBenchmark10();</span>
+<span class="nc" id="L12">			double[] benchXisnoveStats = runXisnove();</span>
+
+<span class="nc" id="L14">            System.out.println(&quot;\nBench10 (ms):&quot;);</span>
+<span class="nc" id="L15">            printStatsArray(benchStats);</span>
+        
+<span class="nc" id="L17">            System.out.println(&quot;Xisnove (ms):&quot;);</span>
+<span class="nc" id="L18">            printStatsArray(benchXisnoveStats);</span>
+<span class="nc" id="L19">        } catch (IOException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L21">			e.printStackTrace();</span>
+<span class="nc" id="L22">		}</span>
+<span class="nc" id="L23">    }</span>
+
+    private static double[] runXisnove() throws IOException {
+<span class="nc" id="L26">        String[] xisnoveArgs = new String[0];</span>
+<span class="nc" id="L27">        long[] resultsBenchXisnove = new long[100];</span>
+
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        for (int i =0; i&lt;100; i++) {</span>
+<span class="nc" id="L30">            long startTime = System.nanoTime(); </span>
+<span class="nc" id="L31">            AstFindAllConditionalModifier.main(xisnoveArgs);</span>
+<span class="nc" id="L32">            long estimatedTime = System.nanoTime() - startTime;</span>
+<span class="nc" id="L33">            resultsBenchXisnove[i] = estimatedTime;</span>
+        }
+
+<span class="nc" id="L36">        double[] benchStats = calculateBoxPlotValues(resultsBenchXisnove);</span>
+<span class="nc" id="L37">        return benchStats;</span>
+
+    }
+
+    private static double[] runBenchmark10() {
+<span class="nc" id="L42">        long[] resultsBench10 = new long[100];</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (int i =0; i&lt;100; i++) {</span>
+<span class="nc" id="L44">            long bench10 = Benchmark10.main();</span>
+<span class="nc" id="L45">            resultsBench10[i] = bench10;</span>
+        }
+<span class="nc" id="L47">        double[] benchStats = calculateBoxPlotValues(resultsBench10);</span>
+<span class="nc" id="L48">        return benchStats;</span>
+    }
+
+    private static double[] runBenchmark100() {
+<span class="nc" id="L52">        long[] resultsBench100 = new long[100];</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (int i =0; i&lt;100; i++) {</span>
+<span class="nc" id="L54">            long bench100 = Benchmark100.main();</span>
+<span class="nc" id="L55">            resultsBench100[i] = bench100;</span>
+        }
+<span class="nc" id="L57">        double[] benchStats = calculateBoxPlotValues(resultsBench100);</span>
+<span class="nc" id="L58">        return benchStats;</span>
+    }
+
+    private static double[] runBenchmark1000() {
+<span class="nc" id="L62">        long[] resultsBench1000 = new long[100];</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i =0; i&lt;100; i++) {</span>
+<span class="nc" id="L64">            long bench1000 = Benchmark1000.main();</span>
+<span class="nc" id="L65">            resultsBench1000[i] = bench1000;</span>
+        }
+<span class="nc" id="L67">        double[] benchStats = calculateBoxPlotValues(resultsBench1000);</span>
+<span class="nc" id="L68">        return benchStats;</span>
+    }
+
+    private static double[] getAvgStddev(long[] bench) {
+        // Calculate the average
+<span class="nc" id="L73">        double sum = 0;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (long time : bench) {</span>
+<span class="nc" id="L75">            sum += time;</span>
+        }
+<span class="nc" id="L77">        double average = sum / bench.length;</span>
+        // System.out.println(&quot;Average: &quot; + average);
+
+        // Calculate the standard deviation
+<span class="nc" id="L81">        double deviationSum = 0;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (long time : bench) {</span>
+<span class="nc" id="L83">            double deviation = time - average;</span>
+<span class="nc" id="L84">            deviationSum += deviation * deviation;</span>
+        }
+<span class="nc" id="L86">        double standardDeviation = Math.sqrt(deviationSum / bench.length);</span>
+        // System.out.println(&quot;Standard Deviation: &quot; + standardDeviation);
+
+<span class="nc" id="L89">        double[] result = {average, standardDeviation};</span>
+<span class="nc" id="L90">        return result;</span>
+    }
+
+    public static double[] calculateBoxPlotValues(long[] values) {
+        // Sort the values in ascending order
+<span class="nc" id="L95">        long[] sortedValues = Arrays.copyOf(values, values.length);</span>
+<span class="nc" id="L96">        Arrays.sort(sortedValues);</span>
+
+<span class="nc" id="L98">        int n = sortedValues.length;</span>
+<span class="nc" id="L99">        double median = calculateMedian(sortedValues);</span>
+<span class="nc" id="L100">        double lowerQuartile = calculateMedian(Arrays.copyOfRange(sortedValues, 0, n / 2));</span>
+<span class="nc" id="L101">        double upperQuartile = calculateMedian(Arrays.copyOfRange(sortedValues, (n + 1) / 2, n));</span>
+
+        // Calculate the interquartile range (IQR)
+<span class="nc" id="L104">        double iqr = upperQuartile - lowerQuartile;</span>
+
+        // Calculate the lower and upper bounds for outliers
+<span class="nc" id="L107">        double lowerBound = lowerQuartile - 1.5 * iqr;</span>
+<span class="nc" id="L108">        double upperBound = upperQuartile + 1.5 * iqr;</span>
+
+        // Find the minimum and maximum within the bounds
+<span class="nc" id="L111">        double min = Double.POSITIVE_INFINITY;</span>
+<span class="nc" id="L112">        double max = Double.NEGATIVE_INFINITY;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (double value : sortedValues) {</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">            if (value &gt;= lowerBound &amp;&amp; value &lt;= upperBound) {</span>
+<span class="nc" id="L115">                min = Math.min(min, value);</span>
+<span class="nc" id="L116">                max = Math.max(max, value);</span>
+            }
+        }
+
+<span class="nc" id="L120">        return new double[]{min, lowerQuartile, median, upperQuartile, max};</span>
+    }
+
+    private static double calculateMedian(long[] values) {
+<span class="nc" id="L124">        int n = values.length;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (n % 2 == 0) {</span>
+<span class="nc" id="L126">            return (values[n / 2 - 1] + values[n / 2]) / 2.0;</span>
+        } else {
+<span class="nc" id="L128">            return values[n / 2];</span>
+        }
+    }
+
+    public static void printStatsArray(double[] array) {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (double value : array) {</span>
+<span class="nc" id="L134">            System.out.println(value/1000);</span>
+        }
+<span class="nc" id="L136">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
