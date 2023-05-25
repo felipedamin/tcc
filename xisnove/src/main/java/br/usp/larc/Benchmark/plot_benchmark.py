@@ -1,28 +1,5 @@
 import matplotlib.pyplot as plt
 
-def plot_average_and_std(average, std):
-    tests = ['Benchmark10', 'Benchmark100', 'Benchmark1000']
-
-    # Plot average values
-    plt.plot(tests, average, label='Average')
-
-    # Plot error bars for standard deviation
-    plt.errorbar(tests, average, yerr=std, linestyle='', marker='o', label='Standard Deviation')
-
-    # Add labels and title
-    plt.xlabel('Tests')
-    plt.ylabel('Time (ms)')
-    plt.title('Average and Standard Deviation')
-
-    # Set y-axis scale to logarithmic
-    plt.yscale('log')
-
-    # Add legend
-    plt.legend()
-
-    # Display the plot
-    plt.show()
-
 def plot_boxplot(boxplot_values, title):
     test_labels = ['10', '100', '1000']
 
@@ -37,14 +14,6 @@ def plot_boxplot(boxplot_values, title):
 
     plt.show()
 
-# average_values = [43.62499, 599.1202099999999, 4024.26116]
-# std_values = [31.47488557929799, 3459.10735762732, 7291.703134192119]
-# plot_average_and_std(average_values, std_values)
-
-# average_values = [5697.72707, 15000.2861, 165555.54171000002]
-# std_values = [15942.243554494098, 21706.97314614522, 59556.95933240389]
-# plot_average_and_std(average_values, std_values)
-
 boxplot_xisnove_values = [
     [1682.076, 2502.1685, 4023.6565, 5437.7245, 8043.97],
     [7906.338, 8992.945, 11400.0265, 15000.794, 21451.372],
@@ -54,15 +23,45 @@ plot_boxplot(boxplot_xisnove_values, "Time to instrument benchmark code")
 
 boxplot_bench_values = [
     [22.672, 24.4595, 42.055, 71.021, 121.488],
-    [101.22, 114.868, 119.4295, 132.056, 155.946],
+    [89.282, 132.988, 190.56, 234.4625, 375.628],
     [848.839, 1086.496, 1155.626, 2191.853, 3330.476]
 ]
-plot_boxplot(boxplot_bench_values, "Time to execute benchmark code")
 
 boxplot_instrumented_values = [
     [50.944, 69.054, 84.2205, 199.5485, 379.407],
-    [356.687, 598.3625, 637.8515, 784.0175, 1038.45],
+    [240.847, 444.125, 575.874, 1248.532, 2142.094],
     [2368.68, 2757.94, 3104.357, 6649.6345, 10814.553],
 ]
 
-plot_boxplot(boxplot_instrumented_values, "Time to execute instrumented benchmark code")
+boxplot_comparison = []
+for x in range(len(boxplot_bench_values)):
+    boxplot_comparison.append(boxplot_bench_values[x])
+    boxplot_comparison.append(boxplot_instrumented_values[x])
+positions = [1,2,4,5,7,8]
+labels = ['10', '10', '100', '100', '1000', '1000']
+
+# Plot the boxplots
+boxplot = plt.boxplot(boxplot_comparison, positions=positions, labels=labels, patch_artist=True)
+
+# Assign colors to odd and even boxplots
+for i in range(len(boxplot['boxes'])):
+    if i % 2 == 0:
+        boxplot['boxes'][i].set_facecolor("blue")
+    else:
+        boxplot['boxes'][i].set_facecolor("red")
+
+# Create a legend for the color scheme
+legend_elements = [
+    plt.Line2D([0], [0], color="blue", lw=4, label='Time to execute benchmark code'),
+    plt.Line2D([0], [0], color="red", lw=4, label='Time to execute instrumented benchmark code')
+]
+plt.legend(handles=legend_elements)
+
+# Customize the plot
+plt.xlabel('Number of Conditions')
+plt.ylabel('Time (ms)')
+plt.title('Runtime comparison')
+plt.yscale('log')
+
+# Show the plot
+plt.show()
