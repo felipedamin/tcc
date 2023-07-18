@@ -1,0 +1,12 @@
+dontinline,*.*_all_jmhStub
+dontinline,*.*_avgt_jmhStub
+dontinline,*.*_sample_jmhStub
+dontinline,*.*_ss_jmhStub
+dontinline,*.*_thrpt_jmhStub
+inline,br/usp/larc/ArrayUtilsBenchmark.baseline
+inline,br/usp/larc/ArrayUtilsBenchmark.indexOfWithStartIndex
+inline,br/usp/larc/ArrayUtilsBenchmark.indexOfWithStartIndexInstrumented
+inline,br/usp/larc/BCryptBenchmark.testHashpw
+inline,br/usp/larc/BCryptBenchmark.testHashpwInstrumented
+inline,br/usp/larc/PasswordValidatorBenchmark.verifyPasswordBenchmark
+inline,br/usp/larc/PasswordValidatorBenchmark.verifyPasswordBenchmarkInstrumented

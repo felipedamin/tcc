@@ -1,0 +1,14 @@
+br.usp.larc.ArrayUtilsBenchmark.baseline                                    avgt    5    ≈ 10⁻⁴             us/op
+KeyValueBenchmark.isEqual                                                   avgt    5    ≈ 10⁻⁴             us/op
+KeyValueBenchmark.isEqualInstrumented                                       avgt    5     2,850 ±   0,548   us/op
+KeyValueBenchmark.isNotEqual                                                avgt    5    ≈ 10⁻⁴             us/op
+KeyValueBenchmark.isNotEqualInstrumented                                    avgt    5     2,761 ±   0,146   us/op
+br.usp.larc.ArrayUtilsBenchmark.indexOfWithStartIndex                       avgt    5    ≈ 10⁻⁴             us/op
+br.usp.larc.ArrayUtilsBenchmark.indexOfWithStartIndexInstrumented           avgt    5     1,373 ±   0,047   us/op
+
+BCryptBenchmark.testHashpw                                                  avgt   20  53476,124 ± 127,495   us/op
+BCryptBenchmark.testHashpwInstrumented                                      avgt   20  53597,019 ±  86,911   us/op
+PasswordValidatorBenchmark.verifyPasswordBenchmark                          avgt   20  54053,332 ± 373,580   us/op
+PasswordValidatorBenchmark.verifyPasswordBenchmarkInstrumented              avgt   20  53853,911 ± 352,440   us/op
+
+Sugestao: PGP

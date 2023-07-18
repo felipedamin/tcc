@@ -1,30 +1,34 @@
-package br.usp.larc.Modifier;
+package org.apache.kafka.modifier;
 
 import java.io.IOException;
 import java.util.logging.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LogFile {
-    private static final Logger logger = Logger.getLogger(LogFile.class.getName());
-    private static final FileHandler fileHandler;
+    private static final Logger logger = LogManager.getLogger(LogFile.class);
+    // private static final Logger logger = Logger.getLogger(LogFile.class.getName());
+    // private static final FileHandler fileHandler;
 
-    static {
-        try {
-            // Remove default console handler
-            logger.setUseParentHandlers(false);
-            
-            fileHandler = new FileHandler("./xisnove/src/main/java/br/usp/larc/Modifier/logFile.out", true); // Set append mode to true
-            logger.addHandler(fileHandler);
-            fileHandler.setFormatter(new SimpleFormatter() {
-                @Override
-                public synchronized String format(LogRecord record) {
-                    return record.getMessage() + System.lineSeparator();
-                }
-            });
-        } catch (IOException e) {
-            System.err.println(e);
-            throw new ExceptionInInitializerError("Failed to initialize logger");
-        }
-    }
+    // static {
+    //     try {
+    //         // Remove default console handler
+    //         logger.setUseParentHandlers(false);
+    //         fileHandler = new FileHandler("./modifier/src/main/java/kafka/modifier/logFile.out", true); // Set append mode to true
+    //         // fileHandler = new FileHandler("./xisnove/src/main/java/br/usp/larc/Modifier/logFile.out", true); // Set append mode to true
+    //         logger.addHandler(fileHandler);
+    //         fileHandler.setFormatter(new SimpleFormatter() {
+    //             @Override
+    //             public synchronized String format(LogRecord record) {
+    //                 return record.getMessage() + System.lineSeparator();
+    //             }
+    //         });
+    //     } catch (IOException e) {
+    //         System.err.println("Failed to initialize logger: " + e.getMessage());
+    //         e.printStackTrace();
+    //         throw new ExceptionInInitializerError("Failed to initialize logger");
+    //     }
+    // }
 
     public static void write(String classAndMethodName, String conditionType, String condition, String[] conditionParams, Object[] paramValue, boolean finalValue) {
         // array, se for nested, se nao for, loga mais uma linha

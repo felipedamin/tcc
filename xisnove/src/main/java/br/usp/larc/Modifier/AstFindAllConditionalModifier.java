@@ -17,69 +17,102 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
-import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class AstFindAllConditionalModifier {
     public static Statement addBeforeThisStmt;
-    private static Boolean saveAstDotFile = false;
-    private static Boolean isRunningBenchmark = true;
+    private static Boolean isRunningBenchmark = false;
+    private SourceRoot sourceRoot;
+    private CompilationUnit compilationUnit;
+
+    // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
+    // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
     public static void main(String[] args) throws IOException {
-        SourceRoot sourceRoot;
-        CompilationUnit compilationUnit;
+        AstFindAllConditionalModifier astModifier = new AstFindAllConditionalModifier();
+        Boolean instrumentAllFiles = true;
+        // if (args.length > 0) {
+        if (instrumentAllFiles) {
+            try {
+                // Path rootDirectory = Paths.get(args[0]).toAbsolutePath();
+                Path rootDirectory = Paths.get("./kafka");
+                Files.walkFileTree(rootDirectory, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        if (file.toString().endsWith(".java")) {
+                            astModifier.sourceRoot = new SourceRoot(file.getParent());
+                            System.out.println("Parsing: " + file.toString());
+                            astModifier.compilationUnit = astModifier.sourceRoot.parse("", file.getFileName().toString());
+                            
+                            // Perform your instrumentation on the Java file
 
-        // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
-        // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
-        if (args.length > 0) {
-            Path projectRoot = Paths.get(args[0]).toAbsolutePath();
-            // System.out.println(projectRoot);
-            String projectRootString = projectRoot.normalize().toString();
-            File parseFile = new File(projectRootString);
-            // System.out.println(parseFile.getParent());
-            sourceRoot = new SourceRoot(Paths.get(parseFile.getParent()));
-            compilationUnit = sourceRoot.parse("", parseFile.getName().toString());
-        } else {
-            // SourceRoot is a tool that read and writes Java files from packages on a certain root directory.
-            // In this case the root directory is found by taking the root from the current Maven module,
-            sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/main/java/br/usp/larc/Benchmark"));
-            // Our sample is in the root of this directory, so no package name.
-            
-            if (isRunningBenchmark) {
-                compilationUnit = sourceRoot.parse("", "Benchmark10.java");
-            } else {
-                compilationUnit = sourceRoot.parse("", "Methods.java");
-            }
-        }
-
-        if (saveAstDotFile) {
-            DotPrinter printer = new DotPrinter(true);
-            try (FileWriter fileWriter = new FileWriter("astBefore.dot")) {
-                PrintWriter printWriter = new PrintWriter(fileWriter);
-                printWriter.print(printer.output(compilationUnit));
-            } catch (Exception e) {
+                            Boolean productionCode = false;
+                            if (args.length>0) {
+                                productionCode = Boolean.parseBoolean(args[1]);
+                            }
+                            astModifier.visitAndModify(productionCode);
+                            astModifier.sourceRoot.saveAll();
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+            return;
+        } else {
+            astModifier.sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/main/java/br/usp/larc/Benchmark"));
             
-        compilationUnit.addImport(new ImportDeclaration("br.usp.larc.Modifier.LogFile", false, false));
+            if (isRunningBenchmark) {
+                astModifier.compilationUnit = astModifier.sourceRoot.parse("", "BCrypt.java");
+            } else {
+                astModifier.compilationUnit = astModifier.sourceRoot.parse("", "Methods.java");
+            }
+            Boolean productionCode = false;
+            if (args.length>0) {
+                productionCode = Boolean.parseBoolean(args[1]);
+            }
+            astModifier.visitAndModify(productionCode);
+        }
 
-		compilationUnit.accept(new ModifierVisitor<String[]>() {
+
+        if (!isRunningBenchmark) {
+            // Overwrite original class
+            astModifier.sourceRoot.saveAll();
+        } else {
+            // When executing the benchmark do not overwrite the original class
+            String outputFilePath = "xisnove/src/main/java/br/usp/larc/Benchmark/benchmark.output";
+            File outputFile = new File(outputFilePath);
+    
+            // Ensure the output directory exists
+            outputFile.getParentFile().mkdirs();
+    
+            // Write the modified compilation unit to the output file
+            Files.write(outputFile.toPath(), astModifier.compilationUnit.toString().getBytes(), StandardOpenOption.CREATE);
+        }
+    }
+
+    public void visitAndModify(Boolean productionCode) {
+        this.compilationUnit.addImport(new ImportDeclaration("org.apache.kafka.modifier.LogFile", false, false));
+        // this.compilationUnit.addImport(new ImportDeclaration("br.usp.larc.Modifier.LogFile", false, false));
+
+		this.compilationUnit.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
             
             @Override
@@ -99,10 +132,6 @@ public class AstFindAllConditionalModifier {
                 // Processa todos os if's:
                 md.findAll(IfStmt.class).forEach(ifStmt -> {
                     Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
-                    Boolean productionCode = false;
-                    if (args.length>0) {
-                        productionCode = Boolean.parseBoolean(args[1]);
-                    }
 
                     if (productionCode) {
                         try {
@@ -128,33 +157,6 @@ public class AstFindAllConditionalModifier {
                 return super.visit(md, this.names);
             }
         }, null); 
-
-        if (!isRunningBenchmark) {
-            // Overwrite original class
-            sourceRoot.saveAll();
-        } else {
-            // When executing the benchmark do not overwrite the original class
-            String outputFilePath = "xisnove/src/main/java/br/usp/larc/Benchmark/Benchmark10.output";
-            File outputFile = new File(outputFilePath);
-    
-            // Ensure the output directory exists
-            outputFile.getParentFile().mkdirs();
-    
-            // Write the modified compilation unit to the output file
-            Files.write(outputFile.toPath(), compilationUnit.toString().getBytes(), StandardOpenOption.CREATE);
-        }
-
-
-        if (saveAstDotFile) {
-            // Salva a nova arvore
-            DotPrinter printer = new DotPrinter(true);
-            try (FileWriter fileWriter = new FileWriter("astAfter.dot")) {
-                PrintWriter printWriter = new PrintWriter(fileWriter);
-                printWriter.print(printer.output(compilationUnit));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public static NodeList<Statement> findTopLevelIf(Node parent) {
@@ -167,7 +169,7 @@ public class AstFindAllConditionalModifier {
             if (granpa.getClass().getName() == "com.github.javaparser.ast.stmt.IfStmt") {
                 statements = findTopLevelIf(granpa);
             }
-            else {
+            else if((granpa.getClass().getName() != "com.github.javaparser.ast.stmt.SwitchEntry")){
                 statements = ((BlockStmt) parentAsIfStmt.getParentNode().get()).getStatements();
             } 
         }
@@ -232,24 +234,36 @@ public class AstFindAllConditionalModifier {
             if (e.getClass() == BinaryExpr.class){
                 Expression eAsExpression = ((Expression) e);
                 tokens.add(eAsExpression);
-                tokenAsString.add(e.toString());
+                // tokenAsString.add(e.toString().replace("\"", "\'"));
             }
             else if (e.getClass() == UnaryExpr.class){
                 Expression eAsExpression = ((Expression) e);
                 tokens.add(eAsExpression);
-                tokenAsString.add(e.toString());
+                // tokenAsString.add(e.toString().replace("\"", "\'"));
             }
             else if (e.getClass() == NameExpr.class){
                 Expression eAsExpression = ((Expression) e);
                 tokens.add(eAsExpression);
-                tokenAsString.add(e.toString());
             }
+            tokenAsString.add(String.valueOf(e).replace("\"", "\'"));
         });
-        
         if (tokenAsString.size() > 0) {
-            testExpr.addArgument(new StringLiteralExpr(tokenAsString.toString()));
+            System.out.println(tokenAsString.toString());
+            System.out.println(tokenAsString.toString().replace("\"", "\'"));
+
+            testExpr.addArgument(new StringLiteralExpr(String.valueOf(tokenAsString).replace("\"", "\'")));
         }
 
+/*LogFile.write(
+    "CreateDelegationTokenRequestDataJsonConverter#write", 
+    "ifStmt", 
+    "_object.ownerPrincipalType == null || !_object.ownerPrincipalType.equals('')",
+    _object.ownerPrincipalType == null || !_object.ownerPrincipalType.equals(""), 
+    "[_object.ownerPrincipalType == null, !_object.ownerPrincipalType.equals("")]", 
+    String.valueOf(_object.ownerPrincipalType == null), 
+    String.valueOf(!_object.ownerPrincipalType.equals("")));
+
+*/
         Expression[] tokensAsArray = new Expression[tokens.size()];
         for (int i =0; i<tokens.size(); i++) {
             tokensAsArray[i] = tokens.get(i);
