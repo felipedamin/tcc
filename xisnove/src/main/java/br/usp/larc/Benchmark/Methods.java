@@ -15,6 +15,15 @@ public class Methods {
         if (a < 10 || b < 5) {
             System.out.println("a é menor que 10");
         }
+        if (a < 10) {
+            System.out.println("a é menor que 10");
+        }
+        if (a < 10 || b < 5) {
+            System.out.println("a é menor que 10");
+        }
+        if (a < 5) {
+            System.out.println("a é menor que 5");
+        }
     }
 
     public static void funcaoNestedIfs() {
