@@ -33,7 +33,6 @@ public class Methods {
         return a;
     }
 
-    // ok
     public static void funcaoIfElseNested() {
         if (a < 1) {
             System.out.println(a);
@@ -47,7 +46,6 @@ public class Methods {
         }
     }
 
-    // ok
     public static void funcaoIfElseIf() {
         System.out.println("Hello World!");
         if (a < 10) {
@@ -61,7 +59,6 @@ public class Methods {
         }
     }
 
-    // ok
     public static void funcaoIfmultiplasCondicoes() {
         if (boolean1 || a == b){
             System.out.println("funcaoIfmultiplasCondicoes");
@@ -137,7 +134,6 @@ public class Methods {
         }
     }
 
-    // ok
     public static Boolean funcaoSwitch(boolean var, int switchInt) {
         switch(switchInt + 5) {
             case 6:
@@ -178,5 +174,16 @@ public class Methods {
                 break;
         }
         return var;
+    }
+
+    public static void funcaoComVariavelAntesDoIf() {
+        Integer c = 2;
+        if (c>b) {
+            System.out.println("c>b");
+        } else if (c==b) {
+            System.out.println("c==b");
+        } else {
+            System.out.println("c<b");
+        }
     }
 }
