@@ -11,4 +11,68 @@ BCryptBenchmark.testHashpwInstrumented                                      avgt
 PasswordValidatorBenchmark.verifyPasswordBenchmark                          avgt   20  54053,332 ± 373,580   us/op
 PasswordValidatorBenchmark.verifyPasswordBenchmarkInstrumented              avgt   20  53853,911 ± 352,440   us/op
 
-Sugestao: PGP
+
+kafka:
+Benchmark                                             Mode  Cnt    Score    Error  Units
+TimelineHashMapBenchmark.testAddEntriesInHashMap      avgt   10  119,137 ± 12,873  ms/op
+TimelineHashMapBenchmark.testAddEntriesInTimelineMap  avgt   10   59,742 ±  2,816  ms/op
+TimelineHashMapBenchmark.testAddEntriesWithSnapshots  avgt   10   74,855 ±  6,725  ms/op
+
+kafka instrumentado (log to console):
+Benchmark                                         Mode  Cnt    Score   Error  Units
+TimelineHashMapBenchmark.testAddEntriesInHashMap      avgt   10   122,004 ± 10,803  ms/op
+TimelineHashMapBenchmark.testAddEntriesInTimelineMap  avgt   10  1169,774 ± 21,557  ms/op
+TimelineHashMapBenchmark.testAddEntriesWithSnapshots  avgt   10  1619,938 ± 24,220  ms/op
+
+kafka instrumentado (log = write to file):
+Benchmark                                             Mode  Cnt      Score      Error  Units
+TimelineHashMapBenchmark.testAddEntriesInHashMap      avgt   10    116,741 ±    8,095  ms/op
+TimelineHashMapBenchmark.testAddEntriesInTimelineMap  avgt   10   7929,120 ±   66,482  ms/op
+TimelineHashMapBenchmark.testAddEntriesWithSnapshots  avgt   10  12165,694 ± 1328,240  ms/op
+
+
+kafka:
+Benchmark                                                   (partitionCount)  (topicCount)  Mode  Cnt        Score         Error  Units
+FetchRequestBenchmark.testFetchRequestForConsumer                          3            10  avgt    3     1494,775 ±      83,517  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                          3           500  avgt    3    78818,158 ±    3253,011  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                         10            10  avgt    3     4916,575 ±    1248,221  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                         10           500  avgt    3   359308,795 ±   57970,718  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                           3            10  avgt    3     1492,521 ±      98,308  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                           3           500  avgt    3    76071,593 ±    6364,680  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                          10            10  avgt    3     4787,702 ±     420,176  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                          10           500  avgt    3   365668,779 ±   79484,348  ns/op
+FetchRequestBenchmark.testRequestToJson                                    3            10  avgt    3    10428,460 ±    1249,516  ns/op
+FetchRequestBenchmark.testRequestToJson                                    3           500  avgt    3   665173,418 ±   47290,309  ns/op
+FetchRequestBenchmark.testRequestToJson                                   10            10  avgt    3    34345,052 ±    2698,032  ns/op
+FetchRequestBenchmark.testRequestToJson                                   10           500  avgt    3  2282381,031 ±  401032,888  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                 3            10  avgt    3      794,974 ±      98,108  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                 3           500  avgt    3    50341,437 ±    2839,959  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                10            10  avgt    3     2669,302 ±      51,386  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                10           500  avgt    3   167866,970 ±   68121,497  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                  3            10  avgt    3      765,864 ±      23,410  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                  3           500  avgt    3    48892,776 ±   13496,633  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                 10            10  avgt    3     2696,520 ±      12,656  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                 10           500  avgt    3   178986,461 ±   32931,000  ns/op
+
+kafka (instrumentado):
+Benchmark                                                   (partitionCount)  (topicCount)  Mode  Cnt         Score         Error  Units
+FetchRequestBenchmark.testFetchRequestForConsumer                          3            10  avgt    5    317914,175 ±   19442,011  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                          3           500  avgt    5  15467049,331 ±  305050,387  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                         10            10  avgt    5   1048364,027 ±   44797,729  ns/op
+FetchRequestBenchmark.testFetchRequestForConsumer                         10           500  avgt    5  52004280,236 ± 1210810,257  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                           3            10  avgt    5    319266,280 ±    9617,229  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                           3           500  avgt    5  15609471,435 ±  742824,298  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                          10            10  avgt    5   1039092,651 ±   20915,919  ns/op
+FetchRequestBenchmark.testFetchRequestForReplica                          10           500  avgt    5  51810798,108 ± 2640170,009  ns/op
+FetchRequestBenchmark.testRequestToJson                                    3            10  avgt    5     15615,670 ±     427,659  ns/op
+FetchRequestBenchmark.testRequestToJson                                    3           500  avgt    5    719542,199 ±   13420,018  ns/op
+FetchRequestBenchmark.testRequestToJson                                   10            10  avgt    5     39076,274 ±     875,313  ns/op
+FetchRequestBenchmark.testRequestToJson                                   10           500  avgt    5   2271092,897 ±   58124,908  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                 3            10  avgt    5    321923,062 ±   12245,368  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                 3           500  avgt    5  15736632,830 ±  529145,994  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                10            10  avgt    5   1065866,837 ±   56996,931  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForConsumer                10           500  avgt    5  52028465,576 ± 1394437,939  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                  3            10  avgt    5    335463,976 ±   12083,181  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                  3           500  avgt    5  15340698,030 ±  477912,410  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                 10            10  avgt    5   1061983,527 ±   70343,642  ns/op
+FetchRequestBenchmark.testSerializeFetchRequestForReplica                 10           500  avgt    5  52239063,324 ± 2613188,471  ns/op

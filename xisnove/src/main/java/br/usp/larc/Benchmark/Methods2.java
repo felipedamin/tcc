@@ -15,6 +15,17 @@ public class Methods2 {
         if (a < 10 || b < 5) {
             System.out.println("a é menor que 10");
         }
+        if (b < 5) {
+            System.out.println("a é menor que 10");
+        }
+        if (b < 5) {
+            System.out.println("a é menor que 10");
+        }
+        System.out.println("Hello World!");
+        if (a < 10 || b < 5) {
+            System.out.println("Segundo: a é menor que 10");
+        }
+        LogFile.write("Methods2#main", "ifStmt", "a < 10 || b < 5", a < 10 || b < 5);
     }
 
     public static void funcaoIfElseNested() {
@@ -26,7 +37,6 @@ public class Methods2 {
             System.out.println("Hello World!");
             System.out.println("Hello World!");
             System.out.println("Hello World!");
-
             if (b > 1) {
                 System.out.println(b);
             }

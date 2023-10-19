@@ -37,17 +37,17 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class AstFindAllConditionalModifier {
+public class AstBlockVisitorModifier {
     public static Statement addBeforeThisStmt;
-    private static Boolean isRunningBenchmark = false;
+    private static Boolean isRunningBenchmark = true;
     private SourceRoot sourceRoot;
     private CompilationUnit compilationUnit;
 
     // Para rodar o projeto agora precisa passar 2 args em -Dexec.args="<arquivo para parsear começando em src> <true/false para codigo de produçao ou nao>"
-    // mvn compile exec:java -Dexec.mainClass=teste.AstFindAllConditionalModifier -Dexec.args="$parseFile true"
+    // mvn compile exec:java -Dexec.mainClass=teste.AstBlockVisitorModifier -Dexec.args="$parseFile true"
     public static void main(String[] args) throws IOException {
-        AstFindAllConditionalModifier astModifier = new AstFindAllConditionalModifier();
-        Boolean instrumentAllFiles = false;
+        AstBlockVisitorModifier astModifier = new AstBlockVisitorModifier();
+        Boolean instrumentAllFiles = true;
         // if (args.length > 0) {
         if (instrumentAllFiles) {
             try {
@@ -78,10 +78,10 @@ public class AstFindAllConditionalModifier {
             }
             return;
         } else {
-            astModifier.sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstFindAllConditionalModifier.class).resolve("src/main/java/br/usp/larc/Benchmark"));
+            astModifier.sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(AstBlockVisitorModifier.class).resolve("src/main/java/br/usp/larc/Benchmark"));
             
             if (isRunningBenchmark) {
-                astModifier.compilationUnit = astModifier.sourceRoot.parse("", "BCrypt.java");
+                astModifier.compilationUnit = astModifier.sourceRoot.parse("PasswordHashing", "BCrypt.java");
             } else {
                 astModifier.compilationUnit = astModifier.sourceRoot.parse("", "Methods2.java");
             }
@@ -110,8 +110,8 @@ public class AstFindAllConditionalModifier {
     }
 
     public void visitAndModify(Boolean productionCode) {
-        // this.compilationUnit.addImport(new ImportDeclaration("org.apache.kafka.modifier.LogFile", false, false));
-        this.compilationUnit.addImport(new ImportDeclaration("br.usp.larc.Modifier.LogFile", false, false));
+        this.compilationUnit.addImport(new ImportDeclaration("org.apache.kafka.modifier.LogFile", false, false));
+        // this.compilationUnit.addImport(new ImportDeclaration("br.usp.larc.Modifier.LogFile", false, false));
 
 		this.compilationUnit.accept(new ModifierVisitor<String[]>() {
             String[] names = {"", ""};
@@ -129,33 +129,44 @@ public class AstFindAllConditionalModifier {
                 String methodName = md.getNameAsString();
                 this.names[1] = methodName;
 
+                return super.visit(md, this.names);
+            }
+
+            public Visitable visit(BlockStmt block, String[] arg) {
                 Integer[] counter = {1};  // Used to identify when there are two identical conditions on the same method
+
                 // Processa todos os if's:
-                md.findAll(IfStmt.class).forEach(ifStmt -> {
-                    Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
-
-                    if (productionCode) {
-                        try {
-                            flaggedConditions = FlaggedConditions.getConditions();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                block.findAll(IfStmt.class).forEach(ifStmt -> {
+                    Boolean isCascasdingIf = false;
+                    if (ifStmt.getParentNode().get().getClass() == IfStmt.class) {
+                        isCascasdingIf = true;
                     }
-
-                    int ifStmtNumber = counter[0]++;
-                    Expression condition = ifStmt.getCondition();
-                    String conditionString = condition.toString();
-                    String conditionId = this.names[0] + "#" + this.names[1] + "#ifStmt" + ifStmtNumber;
-
-                    conditionString = conditionString.replaceAll("\\s", "");
-                    Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) && flaggedConditions.get(conditionId).contains(conditionString);
-                    
-                    if (!productionCode || (productionCode && shouldInstrumentThisCondition)) {
-                        addLogBeforeIfStmt(ifStmt, this.names, ifStmtNumber);
+                    if (ifStmt.getParentNode().orElse(null).equals(block) || isCascasdingIf) { 
+                        Map<String, ArrayList<String>> flaggedConditions = new HashMap<String, ArrayList<String>>();;
+    
+                        if (productionCode) {
+                            try {
+                                flaggedConditions = FlaggedConditions.getConditions();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+    
+                        int ifStmtNumber = counter[0]++;
+                        Expression condition = ifStmt.getCondition();
+                        String conditionString = condition.toString();
+                        String conditionId = this.names[0] + "#" + this.names[1] + "#ifStmt" + ifStmtNumber;
+    
+                        conditionString = conditionString.replaceAll("\\s", "");
+                        Boolean shouldInstrumentThisCondition = flaggedConditions.containsKey(conditionId) && flaggedConditions.get(conditionId).contains(conditionString);
+                        
+                        if (!productionCode || (productionCode && shouldInstrumentThisCondition)) {
+                            addLogBeforeIfStmt(ifStmt, this.names, ifStmtNumber);
+                        }
                     }
                 });
                 // Chama-se o super.visit() para garantir que todos os nós serão visitados
-                return super.visit(md, this.names);
+                return super.visit(block, this.names);
             }
         }, null); 
     }
@@ -276,12 +287,7 @@ public class AstFindAllConditionalModifier {
                 addBeforeThisStmt = ifStmt;
                 NodeList<Statement> statements = new NodeList<>();
                 if (parent.getClass() == IfStmt.class) {
-                    System.out.println("parent is if");
                     statements = findTopLevelIf(parent);
-                }
-                if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.SwitchEntry") {
-                    SwitchEntry parentAsSwitchEntry = ((SwitchEntry) parent);
-                    statements = parentAsSwitchEntry.getStatements();
                 }
                 if (parent.getClass().getName() == "com.github.javaparser.ast.stmt.BlockStmt") {
                     statements = ((BlockStmt) parent).getStatements();
@@ -292,65 +298,25 @@ public class AstFindAllConditionalModifier {
             .ifPresent(statements -> {
                 if (statements.size() > 0) {
                     ExpressionStmt exprStmt = createLogExpression(statements, names, condition);
-
-                    statements.indexOf(addBeforeThisStmt);
-                    System.out.println(statements.indexOf(addBeforeThisStmt));
                     
-                    // The problem here: addBefore finds the first node that matches "addBeforeThisStmt"
+                    // The problem with "addBefore" is that it finds the first node that matches "addBeforeThisStmt"
                     // Therefore if we have two identical conditions (including the thenStatement)
                     // it will add twice before the first node, and will not add before the second node
-                    System.out.println(addBeforeThisStmt.hashCode());
-                    statements.addBefore(exprStmt, addBeforeThisStmt);
+                    // statements.addBefore(exprStmt, addBeforeThisStmt);
 
-                    // IDEIA:
-                    // varrer a nodeList, procurar pelo indice qndo for igual: Node.equals(AnotherNode); 
-                    // usar um contador para encontrar o n-esimo indice
-                    Integer indexToAddLog = 0;
-                    Integer indexCounter = 0;
-                    Integer repeatCounter = 0;
-                    Integer numberOfRepeatedStatements = 0; //how can I get this number?????
-                    // think about the problem with the approach below.
-                    // will this solve that???
-                    Iterator<Statement> statementsIterator = statements.iterator();
-                    while (statementsIterator.hasNext()) {
-                        indexCounter++;
-                        Statement statement = statementsIterator.next();
-                        if (statement.equals(ifStmt)) {
-                            repeatCounter++;
-                            indexToAddLog = indexCounter;
+                    Integer correctIndexForIfStmtNumber = 0;
+                    Integer counter = 0;
+                    for (int i = 0; i<statements.size(); i++) {
+                        Statement statement = statements.get(i);
+                        if (statement.getClass().getName() == "com.github.javaparser.ast.stmt.IfStmt") {
+                            counter++;
+                            if (counter <= ifStmtNumber) {
+                                correctIndexForIfStmtNumber = i;
+                            }
                         }
-                        statement.hashCode();
                     }
-                    statements.add(indexToAddLog, exprStmt);
 
-                    // IDEA:
-                    // If we have an lastUsedIndex for each statements, we could be able to only add AFTER that
-                    // since bc we would never need to add twice on the same index (is this 100% true?)
-                    // however, I dont know how I could get this "lastUsedIndex" for a specific statements list...
-
-                    // IDEA
-                    // could hasCascadingIfStmt() be useful here? nvm one thing has no relation with the other...
-
-
-                    // The problem with this other approach:
-                    // If a method has an 'if' inside another 'else if', 
-                    // the visitor will enumerate them as 1 and 2
-                    // however, this function will look at the code block from the 'else',
-                    // therefore enumerating them as 1 and 1 (on different blocks)
-
-                    // Integer correctIndexForIfStmtNumber = 0;
-                    // Integer counter = 0;
-                    // for (int i = 0; i<statements.size(); i++) {
-                    //     Statement statement = statements.get(i);
-                    //     if (statement.getClass().getName() == "com.github.javaparser.ast.stmt.IfStmt") {
-                    //         counter++;
-                    //         if (counter <= ifStmtNumber) {
-                    //             correctIndexForIfStmtNumber = i;
-                    //         }
-                    //     }
-                    // }
-
-                    // statements.add(correctIndexForIfStmtNumber, exprStmt);
+                    statements.add(correctIndexForIfStmtNumber, exprStmt);
                 }
             });
     }
